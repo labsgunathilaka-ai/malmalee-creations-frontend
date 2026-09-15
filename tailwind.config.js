@@ -11,7 +11,10 @@ export default {
         primaryPurple: '#660099',
         lightBeige: '#eae0cc',
         softLilac: '#d1b2e0',
-      }
+      },
+      fontFamily: {
+        playfair: ['"Playfair Display"', 'serif'],
+      },
     },
   },
   plugins: [],

@@ -1,11 +1,13 @@
+import Header from './components/Header';
+import Home from './pages/Home';
+
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-darkPurple text-center mt-10">
-        Malmalee Creations Setup Ready!
-      </h1>
+    <div className="font-sans">
+      <Header />
+      <Home />
     </div>
   )
 }
 
-export default App
+export default App;
