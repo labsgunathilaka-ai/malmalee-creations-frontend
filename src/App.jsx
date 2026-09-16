@@ -4,10 +4,11 @@ import Home from './pages/Home';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 
 function App() {
   
-  const [currentView, setCurrentView] = useState('cart');
+  const [currentView, setCurrentView] = useState('checkout');
 
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
@@ -33,6 +34,14 @@ function App() {
             Shopping Cart
           </button>
           <button 
+            onClick={() => setCurrentView('checkout')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'checkout' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Checkout Form
+          </button>
+          <button 
             onClick={() => setCurrentView('admin')}
             className={`px-3 py-1 rounded font-bold transition ${
               currentView === 'admin' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
@@ -43,7 +52,7 @@ function App() {
         </div>
       </div>
 
-      {/* Pages Conditional Display */}
+      {/* Pages Display */}
       <div className="flex-1">
         {currentView === 'home' && (
           <div>
@@ -56,6 +65,13 @@ function App() {
           <div>
             <Header />
             <Cart />
+          </div>
+        )}
+
+        {currentView === 'checkout' && (
+          <div>
+            <Header />
+            <Checkout />
           </div>
         )}
 
