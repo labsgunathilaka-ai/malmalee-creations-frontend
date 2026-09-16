@@ -6,10 +6,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
+import AdminOrderDetails from './pages/AdminOrderDetails';
 
 function App() {
-  
-  const [currentView, setCurrentView] = useState('orderConfirmation');
+  const [currentView, setCurrentView] = useState('adminOrders');
 
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
@@ -58,6 +58,14 @@ function App() {
           >
             Admin Dashboard
           </button>
+          <button 
+            onClick={() => setCurrentView('adminOrders')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'adminOrders' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Admin Order Details
+          </button>
         </div>
       </div>
 
@@ -67,6 +75,7 @@ function App() {
           <div>
             <Header />
             <Home />
+            <Footer />
           </div>
         )}
 
@@ -74,6 +83,7 @@ function App() {
           <div>
             <Header />
             <Cart />
+            <Footer />
           </div>
         )}
 
@@ -81,6 +91,7 @@ function App() {
           <div>
             <Header />
             <Checkout />
+            <Footer />
           </div>
         )}
 
@@ -88,15 +99,25 @@ function App() {
           <div>
             <Header />
             <OrderConfirmation />
+            <Footer />
           </div>
         )}
 
         {currentView === 'admin' && (
-          <AdminDashboard />
+          <div>
+            <AdminDashboard />
+            <Footer />
+          </div>
+        )}
+
+        {currentView === 'adminOrders' && (
+          <div>
+            <AdminOrderDetails />
+            <Footer />
+          </div>
         )}
       </div>
 
-      <Footer />
     </div>
   );
 }
