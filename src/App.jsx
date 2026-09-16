@@ -3,33 +3,66 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
+import Cart from './pages/Cart';
 
 function App() {
   
-  const [isAdminView, setIsAdminView] = useState(true);
+  const [currentView, setCurrentView] = useState('cart');
 
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
       
-      <div className="bg-purple-900 text-white text-xs px-4 py-1 flex justify-between items-center">
+      {/* Top Preview Navigation Bar */}
+      <div className="bg-purple-900 text-white text-xs px-4 py-1.5 flex justify-between items-center z-50">
         <span>Malmalee Creations Preview Mode</span>
-        <button 
-          onClick={() => setIsAdminView(!isAdminView)}
-          className="bg-white text-[#660099] px-3 py-1 rounded font-bold hover:bg-purple-100 transition"
-        >
-          {isAdminView ? "Switch to Home Page" : "Switch to Admin Dashboard"}
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setCurrentView('home')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'home' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Home Page
+          </button>
+          <button 
+            onClick={() => setCurrentView('cart')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'cart' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Shopping Cart
+          </button>
+          <button 
+            onClick={() => setCurrentView('admin')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'admin' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Admin Dashboard
+          </button>
+        </div>
       </div>
 
-      
-      {isAdminView ? (
-        <AdminDashboard />
-      ) : (
-        <div>
-          <Header />
-          <Home />
-        </div>
-      )}
+      {/* Pages Conditional Display */}
+      <div className="flex-1">
+        {currentView === 'home' && (
+          <div>
+            <Header />
+            <Home />
+          </div>
+        )}
+
+        {currentView === 'cart' && (
+          <div>
+            <Header />
+            <Cart />
+          </div>
+        )}
+
+        {currentView === 'admin' && (
+          <AdminDashboard />
+        )}
+      </div>
 
       <Footer />
     </div>
