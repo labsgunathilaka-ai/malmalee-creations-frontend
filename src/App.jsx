@@ -5,10 +5,11 @@ import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 function App() {
   
-  const [currentView, setCurrentView] = useState('checkout');
+  const [currentView, setCurrentView] = useState('orderConfirmation');
 
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
@@ -42,6 +43,14 @@ function App() {
             Checkout Form
           </button>
           <button 
+            onClick={() => setCurrentView('orderConfirmation')}
+            className={`px-3 py-1 rounded font-bold transition ${
+              currentView === 'orderConfirmation' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
+            }`}
+          >
+            Order Confirmation
+          </button>
+          <button 
             onClick={() => setCurrentView('admin')}
             className={`px-3 py-1 rounded font-bold transition ${
               currentView === 'admin' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
@@ -52,7 +61,7 @@ function App() {
         </div>
       </div>
 
-      {/* Pages Display */}
+      {/* Pages Conditional Display */}
       <div className="flex-1">
         {currentView === 'home' && (
           <div>
@@ -72,6 +81,13 @@ function App() {
           <div>
             <Header />
             <Checkout />
+          </div>
+        )}
+
+        {currentView === 'orderConfirmation' && (
+          <div>
+            <Header />
+            <OrderConfirmation />
           </div>
         )}
 
