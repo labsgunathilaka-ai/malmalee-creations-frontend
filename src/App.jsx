@@ -11,6 +11,8 @@ import AdminOrderDetails from './pages/AdminOrderDetails';
 function App() {
   const [currentView, setCurrentView] = useState('adminOrders');
 
+  const isAdminView = currentView === 'admin' || currentView === 'adminOrders';
+
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
       
@@ -69,11 +71,13 @@ function App() {
         </div>
       </div>
 
+      {/* Single Header — shown only for customer-facing pages */}
+      {!isAdminView && <Header />}
+
       {/* Pages Conditional Display */}
       <div className="flex-1">
         {currentView === 'home' && (
           <div>
-            <Header />
             <Home />
             <Footer />
           </div>
@@ -81,7 +85,6 @@ function App() {
 
         {currentView === 'cart' && (
           <div>
-            <Header />
             <Cart />
             <Footer />
           </div>
@@ -89,7 +92,6 @@ function App() {
 
         {currentView === 'checkout' && (
           <div>
-            <Header />
             <Checkout />
             <Footer />
           </div>
@@ -97,7 +99,6 @@ function App() {
 
         {currentView === 'orderConfirmation' && (
           <div>
-            <Header />
             <OrderConfirmation />
             <Footer />
           </div>
