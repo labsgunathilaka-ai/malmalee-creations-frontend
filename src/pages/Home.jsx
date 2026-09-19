@@ -1,28 +1,16 @@
 import React from 'react';
 
-// 1. Images tika assets folder eken import karaganna
-import heroMain from '../assets/hero-main.jpg';
-import heroCollection from '../assets/hero-collection.jpg';
-import product1 from '../assets/product-1.jpg';
-import product2 from '../assets/product-2.jpg';
-import product3 from '../assets/product-3.jpg';
-import product4 from '../assets/product-4.jpg';
-import product5 from '../assets/product-5.jpg';
-import product6 from '../assets/product-6.jpg';
-import product7 from '../assets/product-7.jpg';
-import product8 from '../assets/product-8.jpg';
-
 const Home = () => {
-  // 2. Import karapu images tika products array ekata link kireema
+  // Dummy data for products to match your design
   const products = [
-    { id: 1, tag: 'BESTSELLER', category: 'SILK SCRUNCHIES', title: 'Pure Mulberry Silk Cloud Scrunchie - Rose Quartz', price: 'Rs 280.00', img: product1 },
-    { id: 2, tag: 'LIMITED RUN', category: 'OVERSIZED EDITIONS', title: 'Oversized Silk Scrunchie - Midnight Noir', price: 'Rs 340.00', img: product2 },
-    { id: 3, tag: 'NEW SEASON', category: 'VELVET HAIR BOWS', title: 'Velvet Ribbon Hair Bow - Bordeaux', price: 'Rs 420.00', img: product3 },
-    { id: 4, tag: 'BRIDAL ATELIER', category: 'EMBROIDERED BOWS', title: 'Pearl Embroidered French Bow - Ivory', price: 'Rs 580.00', img: product4 },
-    { id: 5, tag: '', category: 'HAIR BOWS', title: 'The Juliette Silk-Velvet Tail Bow', price: 'Rs 380.00', img: product5 },
-    { id: 6, tag: '', category: 'BESPOKE SETS', title: 'Petite Silk Trio Gift Vault', price: 'Rs 480.00', img: product6 },
-    { id: 7, tag: '', category: 'HAIR BOWS', title: 'The Versailles French Lace Ribbon', price: 'Rs 340.00', img: product7 },
-    { id: 8, tag: '', category: 'SCRUNCHIES', title: 'Emerald Botanical Silk Cloud', price: 'Rs 320.00', img: product8 },
+    { id: 1, tag: 'BESTSELLER', category: 'SILK SCRUNCHIES', title: 'Pure Mulberry Silk Cloud Scrunchie - Rose Quartz', price: 'Rs 280.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Silk+Scrunchie' },
+    { id: 2, tag: 'LIMITED RUN', category: 'OVERSIZED EDITIONS', title: 'Oversized Silk Scrunchie - Midnight Noir', price: 'Rs 340.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Black+Scrunchie' },
+    { id: 3, tag: 'NEW SEASON', category: 'VELVET HAIR BOWS', title: 'Velvet Ribbon Hair Bow - Bordeaux', price: 'Rs 420.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Velvet+Bow' },
+    { id: 4, tag: 'BRIDAL ATELIER', category: 'EMBROIDERED BOWS', title: 'Pearl Embroidered French Bow - Ivory', price: 'Rs 580.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Ivory+Bow' },
+    { id: 5, tag: '', category: 'HAIR BOWS', title: 'The Juliette Silk-Velvet Tail Bow', price: 'Rs 380.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Tail+Bow' },
+    { id: 6, tag: '', category: 'BESPOKE SETS', title: 'Petite Silk Trio Gift Vault', price: 'Rs 480.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Trio+Set' },
+    { id: 7, tag: '', category: 'HAIR BOWS', title: 'The Versailles French Lace Ribbon', price: 'Rs 340.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Lace+Ribbon' },
+    { id: 8, tag: '', category: 'SCRUNCHIES', title: 'Emerald Botanical Silk Cloud', price: 'Rs 320.00', img: 'https://via.placeholder.com/300x300/fdfbf7/3d005b?text=Emerald+Scrunchie' },
   ];
 
   return (
@@ -55,10 +43,10 @@ const Home = () => {
               </div>
             </div>
           </div>
-          {/* Hero Images with actual assets */}
+          {/* Hero Images (Mockup) */}
           <div className="flex gap-4">
-            <img src={heroMain} alt="Main" className="w-2/3 h-96 object-cover rounded shadow-sm" />
-            <img src={heroCollection} alt="Collection" className="w-1/3 h-96 object-cover rounded shadow-sm" />
+            <img src="https://via.placeholder.com/400x400/e6dada/3d005b?text=Main+Scrunchie" alt="Main" className="w-2/3 h-96 object-cover rounded shadow-sm" />
+            <img src="https://via.placeholder.com/200x400/e6dada/3d005b?text=Bows+Collection" alt="Collection" className="w-1/3 h-96 object-cover rounded shadow-sm" />
           </div>
         </div>
       </section>
@@ -69,6 +57,7 @@ const Home = () => {
           {['Artisanal Touch', '100% Organic Silk', 'Gift Ready Packaging'].map((feature, idx) => (
             <div key={idx} className="bg-[#fdfbf7] p-6 rounded border border-[#f0ebe1] flex items-start space-x-4">
               <div className="text-primaryPurple mt-1">
+                 {/* Diamond Icon Mock */}
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2l5 5-5 5-5-5 5-5z"/></svg>
               </div>
               <div>
@@ -91,11 +80,13 @@ const Home = () => {
           {products.map((product) => (
             <div key={product.id} className="group cursor-pointer">
               <div className="relative bg-[#fdfbf7] rounded-md overflow-hidden aspect-square mb-4">
+                {/* Tags */}
                 {product.tag && (
                   <span className="absolute top-3 left-3 bg-white text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-700 tracking-wider">
                     {product.tag}
                   </span>
                 )}
+                {/* Heart Icon */}
                 <button className="absolute top-3 right-3 text-gray-400 hover:text-primaryPurple">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                 </button>

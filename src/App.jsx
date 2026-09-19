@@ -3,121 +3,85 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Footer from './components/Footer';
 import AdminDashboard from './pages/AdminDashboard';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
-import AdminOrderDetails from './pages/AdminOrderDetails';
+import CustomerLogin from './pages/CustomerLogin';
+import CustomerSignUp from './pages/CustomerSignUp';
+import ForgotPassword from './pages/ForgotPassword';
+import CustomerProfile from './pages/CustomerProfile';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 function App() {
-  const [currentView, setCurrentView] = useState('adminOrders');
+  // 'login' | 'signup' | 'forgot-password' | 'profile' | 'about' | 'contact' | 'home' | 'admin'
+  const [currentView, setCurrentView] = useState('about');
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  const isAdminView = currentView === 'admin' || currentView === 'adminOrders';
+  const navigateTo = (view) => {
+    setCurrentView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigateTo('login');
+  };
 
   return (
-    <div className="font-sans min-h-screen flex flex-col justify-between">
-      
-      {/* Top Preview Navigation Bar */}
-      <div className="bg-purple-900 text-white text-xs px-4 py-1.5 flex justify-between items-center z-50">
-        <span>Malmalee Creations Preview Mode</span>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setCurrentView('home')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'home' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Home Page
-          </button>
-          <button 
-            onClick={() => setCurrentView('cart')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'cart' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Shopping Cart
-          </button>
-          <button 
-            onClick={() => setCurrentView('checkout')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'checkout' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Checkout Form
-          </button>
-          <button 
-            onClick={() => setCurrentView('orderConfirmation')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'orderConfirmation' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Order Confirmation
-          </button>
-          <button 
-            onClick={() => setCurrentView('admin')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'admin' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Admin Dashboard
-          </button>
-          <button 
-            onClick={() => setCurrentView('adminOrders')}
-            className={`px-3 py-1 rounded font-bold transition ${
-              currentView === 'adminOrders' ? 'bg-white text-[#660099]' : 'bg-purple-800 text-white hover:bg-purple-700'
-            }`}
-          >
-            Admin Order Details
-          </button>
+    <div className="font-sans min-h-screen flex flex-col justify-between bg-white">
+      {/* Main View Router */}
+      {currentView === 'login' ? (
+        <CustomerLogin 
+          onNavigate={navigateTo} 
+          onLogin={handleLogin} 
+        />
+      ) : currentView === 'signup' ? (
+        <CustomerSignUp 
+          onNavigate={navigateTo} 
+          onLogin={handleLogin} 
+        />
+      ) : currentView === 'forgot-password' ? (
+        <ForgotPassword onNavigate={navigateTo} />
+      ) : currentView === 'profile' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <CustomerProfile onNavigate={navigateTo} onLogout={handleLogout} />
+          </div>
+          <Footer />
         </div>
-      </div>
-
-      {/* Single Header — shown only for customer-facing pages */}
-      {!isAdminView && <Header />}
-
-      {/* Pages Conditional Display */}
-      <div className="flex-1">
-        {currentView === 'home' && (
-          <div>
+      ) : currentView === 'about' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <About onNavigate={navigateTo} />
+          </div>
+          <Footer />
+        </div>
+      ) : currentView === 'contact' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <Contact />
+          </div>
+          <Footer />
+        </div>
+      ) : currentView === 'admin' ? (
+        <div className="flex-1">
+          <AdminDashboard />
+          <Footer />
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
             <Home />
-            <Footer />
           </div>
-        )}
-
-        {currentView === 'cart' && (
-          <div>
-            <Cart />
-            <Footer />
-          </div>
-        )}
-
-        {currentView === 'checkout' && (
-          <div>
-            <Checkout />
-            <Footer />
-          </div>
-        )}
-
-        {currentView === 'orderConfirmation' && (
-          <div>
-            <OrderConfirmation />
-            <Footer />
-          </div>
-        )}
-
-        {currentView === 'admin' && (
-          <div>
-            <AdminDashboard />
-            <Footer />
-          </div>
-        )}
-
-        {currentView === 'adminOrders' && (
-          <div>
-            <AdminOrderDetails />
-            <Footer />
-          </div>
-        )}
-      </div>
+          <Footer />
+        </div>
+      )}
 
     </div>
   );
