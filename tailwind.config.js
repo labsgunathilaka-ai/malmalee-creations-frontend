@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkPurple: '#3d005b',
-        primaryPurple: '#660099',
+        darkPurple: '#c40063',
+        primaryPurple: '#ff0081',
         lightBeige: '#eae0cc',
-        softLilac: '#d1b2e0',
+        softLilac: '#ff77bc',
       },
       fontFamily: {
         playfair: ['"Playfair Display"', 'serif'],

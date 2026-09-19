@@ -1,22 +1,40 @@
 import React from 'react';
 
-const Header = () => {
+const Header = ({ onNavigate = () => {}, currentView = 'home', isLoggedIn = true }) => {
   return (
     <header className="bg-darkPurple text-white py-4 px-8 font-sans border-b border-white/10">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Left: Logo */}
-        <div className="text-3xl font-playfair font-medium tracking-wide cursor-pointer">
+        <div 
+          onClick={() => onNavigate('home')}
+          className="text-3xl font-playfair font-medium tracking-wide cursor-pointer hover:opacity-90 transition"
+        >
           Malmalee Creations
         </div>
 
         {/* Center: Navigation Links */}
         <nav className="flex items-center space-x-8 text-[15px]">
           {/* Active Link */}
-          <a href="#" className="border-b-2 border-white pb-1 font-medium">Home</a>
+          <button 
+            onClick={() => onNavigate('home')} 
+            className={`pb-1 font-medium transition cursor-pointer ${currentView === 'home' ? 'border-b-2 border-white' : 'text-gray-300 hover:text-white'}`}
+          >
+            Home
+          </button>
           <a href="#" className="text-gray-300 hover:text-white transition">Products</a>
-          <a href="#" className="text-gray-300 hover:text-white transition">About</a>
-          <a href="#" className="text-gray-300 hover:text-white transition">Contact us</a>
+          <button 
+            onClick={() => onNavigate('about')} 
+            className={`pb-1 font-medium transition cursor-pointer ${currentView === 'about' ? 'border-b-2 border-white' : 'text-gray-300 hover:text-white'}`}
+          >
+            About
+          </button>
+          <button
+            onClick={() => onNavigate('contact')}
+            className={`pb-1 font-medium transition cursor-pointer ${currentView === 'contact' ? 'border-b-2 border-white' : 'text-gray-300 hover:text-white'}`}
+          >
+            Contact us
+          </button>
         </nav>
 
         {/* Right: Search & Icons */}
@@ -34,8 +52,14 @@ const Header = () => {
             />
           </div>
 
-          {/* Profile Icon */}
-          <button className="text-white hover:text-softLilac transition">
+          {/* Profile Icon -> Opens User Profile if Logged In, or Sign In if Logged Out */}
+          <button 
+            onClick={() => onNavigate(isLoggedIn ? 'profile' : 'login')}
+            title={isLoggedIn ? "My Profile" : "Customer Sign In"}
+            className={`transition cursor-pointer p-1.5 rounded-full hover:bg-white/10 ${
+              currentView === 'profile' ? 'text-softLilac bg-white/15 ring-1 ring-white/30' : 'text-white hover:text-softLilac'
+            }`}
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
