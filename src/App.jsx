@@ -11,17 +11,21 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 
 function App() {
-  // 'login' | 'signup' | 'forgot-password' | 'profile' | 'about' | 'contact' | 'home' | 'admin'
-  const [currentView, setCurrentView] = useState('about');
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [currentView, setCurrentView] = useState('login');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const navigateTo = (view) => {
     setCurrentView(view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLogin = () => {
+  const handleLogin = (role) => {
     setIsLoggedIn(true);
+    if (role === 'admin') {
+      navigateTo('admin');
+    } else {
+      navigateTo('home');
+    }
   };
 
   const handleLogout = () => {
@@ -31,7 +35,8 @@ function App() {
 
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between bg-white">
-      {/* Main View Router */}
+      
+      {/* Dynamic View Navigation */}
       {currentView === 'login' ? (
         <CustomerLogin 
           onNavigate={navigateTo} 
