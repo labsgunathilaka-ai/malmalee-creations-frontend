@@ -9,6 +9,10 @@ import ForgotPassword from './pages/ForgotPassword';
 import CustomerProfile from './pages/CustomerProfile';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import AdminOrderDetails from './pages/AdminOrderDetails';
 
 function App() {
   const [currentView, setCurrentView] = useState('login');
@@ -49,6 +53,30 @@ function App() {
         />
       ) : currentView === 'forgot-password' ? (
         <ForgotPassword onNavigate={navigateTo} />
+      ) : currentView === 'cart' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <Cart onNavigate={navigateTo} />
+          </div>
+          <Footer />
+        </div>
+      ) : currentView === 'checkout' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <Checkout onNavigate={navigateTo} />
+          </div>
+          <Footer />
+        </div>
+      ) : currentView === 'order-confirmation' ? (
+        <div className="flex-1 flex flex-col justify-between">
+          <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
+          <div className="flex-1">
+            <OrderConfirmation onNavigate={navigateTo} />
+          </div>
+          <Footer />
+        </div>
       ) : currentView === 'profile' ? (
         <div className="flex-1 flex flex-col justify-between">
           <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
@@ -75,14 +103,19 @@ function App() {
         </div>
       ) : currentView === 'admin' ? (
         <div className="flex-1">
-          <AdminDashboard />
+          <AdminDashboard onNavigate={navigateTo} />
+          <Footer />
+        </div>
+      ) : currentView === 'admin-orders' ? (
+        <div className="flex-1">
+          <AdminOrderDetails onNavigate={navigateTo} />
           <Footer />
         </div>
       ) : (
         <div className="flex-1 flex flex-col justify-between">
           <Header onNavigate={navigateTo} currentView={currentView} isLoggedIn={isLoggedIn} />
           <div className="flex-1">
-            <Home />
+            <Home onNavigate={navigateTo} />
           </div>
           <Footer />
         </div>

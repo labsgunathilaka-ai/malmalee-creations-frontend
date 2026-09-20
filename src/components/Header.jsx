@@ -65,13 +65,19 @@ const Header = ({ onNavigate = () => {}, currentView = 'home', isLoggedIn = true
             </svg>
           </button>
           
-          {/* Shopping Bag / Cart Icon */}
-          <button className="relative text-white hover:text-softLilac transition mt-1">
+          {/* Shopping Bag / Cart Icon -> Navigates to Cart Page */}
+          <button 
+            onClick={() => onNavigate('cart')}
+            title="Shopping Cart"
+            className={`relative transition cursor-pointer p-1.5 rounded-full hover:bg-white/10 mt-1 ${
+              currentView === 'cart' ? 'text-softLilac bg-white/15 ring-1 ring-white/30' : 'text-white hover:text-softLilac'
+            }`}
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             {/* Notification Badge */}
-            <span className="absolute -top-2 -right-2 bg-primaryPurple text-white text-[10px] font-bold w-[18px] h-[18px] flex items-center justify-center rounded-full border border-darkPurple">
+            <span className="absolute -top-1 -right-1 bg-primaryPurple text-white text-[10px] font-bold w-[18px] h-[18px] flex items-center justify-center rounded-full border border-darkPurple">
               3
             </span>
           </button>
