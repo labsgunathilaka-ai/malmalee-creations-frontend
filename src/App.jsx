@@ -8,10 +8,10 @@ import CustomerSignUp from './pages/CustomerSignUp';
 import ForgotPassword from './pages/ForgotPassword';
 import CustomerProfile from './pages/CustomerProfile';
 import About from './pages/About';
-import Contact from './pages/Contact';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
+import Contact from './pages/CustomerContact';
+import Cart from './pages/CustomerCart';
+import Checkout from './pages/CustomerCheckout';
+import OrderConfirmation from './pages/CustomerOrderConfirmation';
 import AdminOrderDetails from './pages/AdminOrderDetails';
 
 function App() {
