@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaThLarge, 
   FaShapes, 
@@ -20,6 +21,11 @@ import AdminProductManager from './AdminProductManager';
 const AdminDashboard = () => {
   
   const [activeTab, setActiveTab] = useState('dashboard');
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/login');
+  };
 
   // Sample Data matching Figma wireframe
   const orders = [
@@ -90,7 +96,7 @@ const AdminDashboard = () => {
           >
             <FaCog /> Settings
           </button>
-          <button className="w-full flex items-center gap-3 text-pink-950 hover:text-white px-4 py-2 text-sm transition cursor-pointer">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 text-pink-950 hover:text-white px-4 py-2 text-sm transition cursor-pointer">
             <FaSignOutAlt /> Logout
           </button>
         </div>
