@@ -58,20 +58,12 @@ const Header = ({ isLoggedIn, onLogout }) => {
             />
           </div>
 
-          {/* Profile / Logout Icon */}
-          {isLoggedIn ? (
-            <button onClick={handleLogout} className="text-white hover:text-white/80 transition" title="Logout">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-              </svg>
-            </button>
-          ) : (
-            <Link to="/login" className="text-white hover:text-white/80 transition" title="Login">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </Link>
-          )}
+          {/* User Profile Icon — always links to /profile */}
+          <Link to="/profile" className="text-white hover:text-white/80 transition" title="My Profile">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </Link>
 
           {/* Cart Icon */}
           <Link to="/cart" className="relative text-white hover:text-white/80 transition mt-1">
