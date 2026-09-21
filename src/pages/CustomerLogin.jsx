@@ -62,9 +62,7 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
         >
           Malmalee Creations
         </div>
-        <div className="text-xs font-medium text-white/90">
-          Atelier Member Portal
-        </div>
+
       </header>
 
       {/* Main Login Card Section */}
