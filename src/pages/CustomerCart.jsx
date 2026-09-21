@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
-const Cart = ({ onNavigate = () => {} }) => {
+const Cart = () => {
+  const navigate = useNavigate();
   // Sample Cart Items
   const [cartItems, setCartItems] = useState([
     {
@@ -168,7 +170,7 @@ const Cart = ({ onNavigate = () => {} }) => {
             <div className="space-y-4">
               {/* Primary Action Button (#ff0081) */}
               <button 
-                onClick={() => onNavigate('checkout')}
+                onClick={() => navigate('/checkout')}
                 className="w-full bg-[#ff0081] text-white py-3.5 rounded-lg font-serif font-bold text-sm tracking-widest uppercase hover:bg-[#d9006e] transition shadow-md cursor-pointer"
               >
                 PROCEED TO CHECKOUT
@@ -177,7 +179,7 @@ const Cart = ({ onNavigate = () => {} }) => {
               {/* Secondary Navigation Link */}
               <div className="text-center">
                 <button 
-                  onClick={() => onNavigate('home')}
+                  onClick={() => navigate('/home')}
                   className="font-serif font-bold text-[#ff0081] hover:underline text-sm inline-block cursor-pointer bg-transparent border-none"
                 >
                   Continue Shopping

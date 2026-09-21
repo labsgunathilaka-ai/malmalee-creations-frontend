@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import product2 from '../assets/product-2.jpg';
+import product3 from '../assets/product-3.jpg';
+import product4 from '../assets/product-4.jpg';
+import product5 from '../assets/product-5.jpg';
 import { 
   FaChevronDown,
   FaCheck
@@ -18,7 +22,7 @@ const AdminOrderDetails = () => {
       price: '480/=',
       subtotal: '960/=',
       status: 'Processing',
-      image: 'https://images.unsplash.com/-24d5c474f2ae?w=100&auto=format&fit=crop&q=60',
+      image: product2,
     },
     {
       id: 2,
@@ -27,7 +31,7 @@ const AdminOrderDetails = () => {
       price: '185/=',
       subtotal: '740/=',
       status: 'Delivered',
-      image: 'https://images.unsplash.com/photo-1-3dd850d97f1d?w=100&auto=format&fit=crop&q=60',
+      image: product3,
     },
     {
       id: 3,
@@ -36,7 +40,7 @@ const AdminOrderDetails = () => {
       price: '340/=',
       subtotal: '340/=',
       status: 'Processing',
-      image: 'https://images.unsplash.com/photo-6927-ab7c9ab60908?w=100&auto=format&fit=crop&q=60',
+      image: product4,
     },
     {
       id: 4,
@@ -45,7 +49,7 @@ const AdminOrderDetails = () => {
       price: '540/=',
       subtotal: '1,620/=',
       status: 'Delivered',
-      image: 'https://images.unsplash.com/photo-906931-81f04f0cceab?w=100&auto=format&fit=crop&q=60',
+      image: product5,
     },
   ];
 

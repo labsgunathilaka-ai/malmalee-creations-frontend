@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { 
+import { useNavigate } from 'react-router-dom';
+import {
   FiHeart, 
   FiFeather, 
   FiShield, 
@@ -12,7 +13,8 @@ import {
   FiCheckCircle
 } from 'react-icons/fi';
 
-const About = ({ onNavigate = () => {} }) => {
+const About = () => {
+  const navigate = useNavigate();
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [joinedWaitlist, setJoinedWaitlist] = useState(false);
 
@@ -317,14 +319,14 @@ const About = ({ onNavigate = () => {} }) => {
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
-              onClick={() => onNavigate('home')}
+              onClick={() => navigate('/home')}
               className="bg-primaryPurple hover:bg-darkPurple text-white px-7 py-3.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2 cursor-pointer"
             >
               <span>Shop Hair Accessories</span>
               <FiArrowRight />
             </button>
             <button 
-              onClick={() => onNavigate('profile')}
+              onClick={() => navigate('/profile')}
               className="bg-[#fdf3e2] hover:bg-[#faebd0] text-darkPurple border border-[#f7e4c8] px-7 py-3.5 rounded-xl font-medium text-sm transition duration-200 cursor-pointer"
             >
               <span>Customer Account</span>

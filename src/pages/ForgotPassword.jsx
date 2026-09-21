@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiKey, FiMail, FiCheck, FiArrowLeft } from 'react-icons/fi';
 
-const ForgotPassword = ({ onNavigate = () => {} }) => {
+const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -53,7 +55,7 @@ const ForgotPassword = ({ onNavigate = () => {} }) => {
       {/* Top Header: Logo with ONLY letters in Purple on Top-Left */}
       <header className="relative z-10 w-full px-8 sm:px-12 pt-8 pb-4 flex items-center">
         <div 
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/home')}
           className="cursor-pointer group inline-block"
         >
           <span className="font-playfair text-2xl sm:text-3xl font-semibold tracking-wide text-darkPurple transition-colors duration-200">
@@ -138,7 +140,7 @@ const ForgotPassword = ({ onNavigate = () => {} }) => {
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={() => onNavigate('login')}
+                  onClick={() => navigate('/login')}
                   className="w-full bg-primaryPurple hover:bg-darkPurple active:scale-[0.99] text-white font-medium text-sm py-2.5 sm:py-3 rounded-lg shadow-sm transition duration-200 cursor-pointer"
                 >
                   Return to Login
@@ -171,7 +173,7 @@ const ForgotPassword = ({ onNavigate = () => {} }) => {
               Remember your password?{' '}
               <button
                 type="button"
-                onClick={() => onNavigate('login')}
+                onClick={() => navigate('/login')}
                 className="text-primaryPurple font-semibold hover:text-darkPurple hover:underline ml-1 cursor-pointer transition"
               >
                 Back to Login

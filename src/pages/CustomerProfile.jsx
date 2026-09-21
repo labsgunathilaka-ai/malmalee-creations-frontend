@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { 
+import { useNavigate } from 'react-router-dom';
+import {
   FiUser, 
   FiPackage, 
   FiMapPin, 
@@ -17,7 +18,8 @@ import {
   FiAward
 } from 'react-icons/fi';
 
-const CustomerProfile = ({ onNavigate = () => {}, onLogout = () => {} }) => {
+const CustomerProfile = ({ onLogout = () => {} }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('orders'); // 'profile' | 'orders' | 'addresses' | 'wishlist' | 'security'
   const [saveToast, setSaveToast] = useState('');
 
@@ -202,7 +204,7 @@ const CustomerProfile = ({ onNavigate = () => {}, onLogout = () => {} }) => {
           
           {/* Breadcrumb */}
           <div className="text-xs text-gray-500 mb-4 flex items-center space-x-2">
-            <button onClick={() => onNavigate('home')} className="hover:text-darkPurple transition">Home</button>
+            <button onClick={() => navigate('/home')} className="hover:text-darkPurple transition">Home</button>
             <span>/</span>
             <span className="text-darkPurple font-medium">Customer Account</span>
           </div>
@@ -361,7 +363,7 @@ const CustomerProfile = ({ onNavigate = () => {}, onLogout = () => {} }) => {
                   if (onLogout) {
                     onLogout();
                   } else {
-                    onNavigate('login');
+                    navigate('/login');
                   }
                 }}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs sm:text-sm font-medium text-red-600 hover:bg-red-50 transition cursor-pointer"
@@ -693,7 +695,7 @@ const CustomerProfile = ({ onNavigate = () => {}, onLogout = () => {} }) => {
                     <p className="font-playfair text-lg text-darkPurple font-bold">Your Wishlist is Empty</p>
                     <p className="text-xs text-gray-500 mt-1 mb-4">Discover bespoke hair accessories and bookmark your favorites.</p>
                     <button 
-                      onClick={() => onNavigate('home')}
+                      onClick={() => navigate('/home')}
                       className="bg-primaryPurple text-white px-5 py-2 rounded-lg text-xs font-medium hover:bg-darkPurple transition"
                     >
                       Explore Collections

@@ -14,6 +14,8 @@ import {
 
 
 import AdminOrderDetails from './AdminOrderDetails';
+import AdminCategoryManager from './AdminCategoryManager';
+import AdminProductManager from './AdminProductManager';
 
 const AdminDashboard = () => {
   
@@ -185,16 +187,12 @@ const AdminDashboard = () => {
 
         {/* 2. CATEGORIES VIEW */}
         {activeTab === 'categories' && (
-          <div className="p-8">
-            <h1 className="text-2xl font-bold text-[#ff0081]">Categories Management</h1>
-          </div>
+          <AdminCategoryManager />
         )}
 
         {/* 3. PRODUCTS VIEW */}
         {activeTab === 'products' && (
-          <div className="p-8">
-            <h1 className="text-2xl font-bold text-[#ff0081]">Products Management</h1>
-          </div>
+          <AdminProductManager />
         )}
 
         {/* 4. ORDERS VIEW - මෙතැනදී Sidebar නොමැති AdminOrderDetails Component එක Render වේ */}

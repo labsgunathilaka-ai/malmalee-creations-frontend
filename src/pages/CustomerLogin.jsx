@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiLock, FiEye, FiEyeOff, FiCheck, FiUser, FiShield } from 'react-icons/fi';
 
-const CustomerLogin = ({ onNavigate = () => {}, onLogin = () => {} }) => {
+const CustomerLogin = ({ onLogin = () => {} }) => {
+  const navigate = useNavigate();
   const [role, setRole] = useState('customer'); // 'customer' | 'admin'
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -27,8 +29,8 @@ const CustomerLogin = ({ onNavigate = () => {}, onLogin = () => {} }) => {
 
       setTimeout(() => {
         setSuccessMsg('');
-        if (onNavigate) {
-          onNavigate(role === 'admin' ? 'admin' : 'profile');
+        if (true) {
+          navigate(role === 'admin' ? '/admin' : '/home');
         }
       }, 1200);
     }, 800);
@@ -55,7 +57,7 @@ const CustomerLogin = ({ onNavigate = () => {}, onLogin = () => {} }) => {
       {/* Top Header Navigation Bar - Screenshot එකේ වගේ Magenta Header එක */}
       <header className="relative z-10 w-full bg-[#c81e67] text-white px-8 sm:px-12 py-4 shadow-sm flex items-center justify-between">
         <div 
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/home')}
           className="cursor-pointer font-playfair text-2xl sm:text-3xl font-bold tracking-wide"
         >
           Malmalee Creations
@@ -155,7 +157,7 @@ const CustomerLogin = ({ onNavigate = () => {}, onLogin = () => {} }) => {
                 {role === 'customer' && (
                   <button
                     type="button"
-                    onClick={() => onNavigate('forgot-password')}
+                    onClick={() => navigate('/forgot-password')}
                     className="text-xs font-medium text-[#c81e67] hover:underline cursor-pointer transition"
                   >
                     Forgot Password?
@@ -234,7 +236,7 @@ const CustomerLogin = ({ onNavigate = () => {}, onLogin = () => {} }) => {
                   Don't have an account?{' '}
                   <button
                     type="button"
-                    onClick={() => onNavigate('signup')}
+                    onClick={() => navigate('/signup')}
                     className="text-[#c81e67] font-semibold hover:underline ml-1 cursor-pointer transition"
                   >
                     Register here

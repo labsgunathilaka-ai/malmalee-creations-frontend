@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiEye, FiEyeOff, FiCheck, FiShield } from 'react-icons/fi';
 
-const CustomerSignUp = ({ onNavigate = () => { }, onLogin = () => { } }) => {
+const CustomerSignUp = ({ onLogin = () => {} }) => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +41,7 @@ const CustomerSignUp = ({ onNavigate = () => { }, onLogin = () => { } }) => {
       setSuccessMsg('Account created successfully! Welcome to Malmalee Creations.');
       if (onLogin) onLogin();
       setTimeout(() => {
-        if (onNavigate) onNavigate('profile');
+        navigate('/home');
       }, 1200);
     }, 800);
   };
@@ -65,7 +67,7 @@ const CustomerSignUp = ({ onNavigate = () => { }, onLogin = () => { } }) => {
       {/* Top Header: Logo with ONLY letters in Purple on Top-Left */}
       <header className="relative z-10 w-full px-8 sm:px-12 pt-8 pb-4 flex items-center">
         <div
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/home')}
           className="cursor-pointer group inline-block"
         >
           <span className="font-playfair text-2xl sm:text-3xl font-semibold tracking-wide text-darkPurple transition-colors duration-200">
@@ -203,7 +205,7 @@ const CustomerSignUp = ({ onNavigate = () => { }, onLogin = () => { } }) => {
               Already have an account?{' '}
               <button
                 type="button"
-                onClick={() => onNavigate('login')}
+                onClick={() => navigate('/login')}
                 className="text-primaryPurple font-semibold hover:text-darkPurple hover:underline ml-1 cursor-pointer transition"
               >
                 Login here

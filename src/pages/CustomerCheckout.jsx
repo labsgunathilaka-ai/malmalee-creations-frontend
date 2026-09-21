@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { FaMoneyBillWave, FaCreditCard, FaBoxOpen } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
-const Checkout = ({ onNavigate = () => {} }) => {
+const Checkout = () => {
+  const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -148,13 +150,13 @@ const Checkout = ({ onNavigate = () => {} }) => {
           {/* Navigation Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
             <button
-              onClick={() => onNavigate('products')}
+              onClick={() => navigate('/home')}
               className="bg-[#ff0081] text-white px-8 py-3 rounded-lg font-serif font-bold text-sm tracking-wide uppercase hover:bg-[#d9006e] transition cursor-pointer shadow-md"
             >
               Continue Shopping
             </button>
             <button
-              onClick={() => onNavigate('profile')}
+              onClick={() => navigate('/profile')}
               className="border-2 border-[#ff0081] text-[#ff0081] px-8 py-3 rounded-lg font-serif font-bold text-sm tracking-wide uppercase hover:bg-pink-50 transition cursor-pointer"
             >
               View Order History
@@ -389,7 +391,7 @@ const Checkout = ({ onNavigate = () => {} }) => {
               <div className="text-center">
                 <button 
                   type="button"
-                  onClick={() => onNavigate('cart')}
+                  onClick={() => navigate('/cart')}
                   className="font-serif font-bold text-[#ff0081] hover:underline text-xs md:text-sm inline-block cursor-pointer bg-transparent border-none py-1"
                 >
                   Return to Cart
