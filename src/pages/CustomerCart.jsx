@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import product2 from '../assets/product-2.jpg';
+import product3 from '../assets/product-3.jpg';
+import product4 from '../assets/product-4.jpg';
+import product5 from '../assets/product-5.jpg';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -11,28 +15,28 @@ const Cart = () => {
       name: 'Imperial Damask Velvet Bow',
       price: 480,
       quantity: 2,
-      image: 'https://via.placeholder.com/60',
+      image: product2,
     },
     {
       id: 2,
       name: 'Petit Fleur Silk Minaudière',
       price: 185,
       quantity: 4,
-      image: 'https://via.placeholder.com/60',
+      image: product3,
     },
     {
       id: 3,
       name: 'Versailles French Lace Ribbon',
       price: 340,
       quantity: 1,
-      image: 'https://via.placeholder.com/60',
+      image: product4,
     },
     {
       id: 4,
       name: 'Heirloom Padded Velvet Headband',
       price: 540,
       quantity: 3,
-      image: 'https://via.placeholder.com/60',
+      image: product5,
     },
   ]);
 

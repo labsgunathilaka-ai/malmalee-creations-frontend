@@ -38,13 +38,6 @@ const About = () => {
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          
-          <div className="inline-flex items-center space-x-2 bg-white/80 border border-[#e5dcd0] px-3.5 py-1.5 rounded-full mb-6 shadow-xs">
-            <FiStar className="text-primaryPurple text-xs" />
-            <span className="text-[11px] font-bold text-darkPurple tracking-widest uppercase">
-              Meet The Founder & Atelier Story
-            </span>
-          </div>
 
           <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-bold text-darkPurple leading-tight mb-6">
             Handcrafted with Heart, Soul & Boundless Passion

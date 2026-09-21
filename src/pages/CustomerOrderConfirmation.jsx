@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { FaMoneyBillWave, FaCreditCard, FaBoxOpen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import product2 from '../assets/product-2.jpg';
+import product3 from '../assets/product-3.jpg';
+import product4 from '../assets/product-4.jpg';
+import product5 from '../assets/product-5.jpg';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -22,7 +26,7 @@ const Checkout = () => {
   const orderItems = [
     {
       id: 1,
-      image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100&auto=format&fit=crop&q=60',
+      image: product2,
       title: 'Imported Oversized Velvet Bow',
       price: 480,
       quantity: 2,
@@ -31,7 +35,7 @@ const Checkout = () => {
     },
     {
       id: 2,
-      image: 'https://images.unsplash.com/photo-1606760227091-3dd850d97f1d?w=100&auto=format&fit=crop&q=60',
+      image: product3,
       title: 'Petit Gear Silk Scrunchies',
       price: 185,
       quantity: 4,
@@ -40,7 +44,7 @@ const Checkout = () => {
     },
     {
       id: 3,
-      image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=100&auto=format&fit=crop&q=60',
+      image: product4,
       title: 'Versailles French Lace Ribbon',
       price: 340,
       quantity: 1,
@@ -49,7 +53,7 @@ const Checkout = () => {
     },
     {
       id: 4,
-      image: 'https://images.unsplash.com/photo-1590595906931-81f04f0cceab?w=100&auto=format&fit=crop&q=60',
+      image: product5,
       title: 'Heirloom Padded Velvet Headband',
       price: 540,
       quantity: 3,
