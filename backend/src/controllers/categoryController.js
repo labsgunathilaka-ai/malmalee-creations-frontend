@@ -8,10 +8,7 @@ const getAllCategories = async (req, res, next) => {
     if (status) filter.status = status;
     if (search) filter.name = { $regex: search, $options: 'i' };
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const total = await Category.countDocuments(filter);
-    const categories = await Category.find(filter)
-      .sort({ displayOrder: 1, createdAt: -1 })
+   
       .skip(skip)
       .limit(parseInt(limit));
 
