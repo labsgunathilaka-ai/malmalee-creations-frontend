@@ -36,10 +36,16 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Stock cannot be negative'],
       default: 0,
     },
+    // ── Media ──────────────────────────────────────────────────────────────────
     images: {
-      type: [String],
+      type: [String],   // paths to uploaded image files
       default: [],
     },
+    video: {
+      type: String,     // path to uploaded video file (optional)
+      default: null,
+    },
+    // ── Extra details ──────────────────────────────────────────────────────────
     colors: {
       type: [String],
       default: [],
@@ -47,6 +53,14 @@ const productSchema = new mongoose.Schema(
     tags: {
       type: [String],
       default: [],
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    isNewArrival: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,
@@ -67,7 +81,7 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-generate SKU and set status based on stock
+// ─── Auto-generate SKU and auto-set status from stock ─────────────────────────
 productSchema.pre('save', async function (next) {
   if (!this.sku) {
     const rand = Math.floor(100 + Math.random() * 900);
@@ -82,5 +96,10 @@ productSchema.pre('save', async function (next) {
   }
   next();
 });
+
+// ─── Index for search performance ─────────────────────────────────────────────
+productSchema.index({ name: 'text', description: 'text' });
+productSchema.index({ category: 1, status: 1 });
+productSchema.index({ price: 1 });
 
 module.exports = mongoose.model('Product', productSchema);
