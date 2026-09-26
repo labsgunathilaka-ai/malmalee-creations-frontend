@@ -40,7 +40,7 @@ const createProduct = async (req, res, next) => {
     const cat = await Category.findById(category);
     if (!cat) { res.status(404); throw new Error('Category not found'); }
 
-    const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+    const images = req.files ? req.files.map(f => `/uploads/images/${f.filename}`) : [];
     const parseList = (val) => val ? (Array.isArray(val) ? val : val.split(',').map(v => v.trim())) : [];
 
     const product = await Product.create({
@@ -87,7 +87,7 @@ const updateProduct = async (req, res, next) => {
     const parsedTags   = parseList(tags);
     if (parsedColors) product.colors = parsedColors;
     if (parsedTags)   product.tags   = parsedTags;
-    if (req.files && req.files.length > 0) product.images = req.files.map(f => `/uploads/${f.filename}`);
+    if (req.files && req.files.length > 0) product.images = req.files.map(f => `/uploads/images/${f.filename}`);
 
     const updated = await product.save();
     res.status(200).json({ success: true, message: 'Product updated successfully', data: updated });

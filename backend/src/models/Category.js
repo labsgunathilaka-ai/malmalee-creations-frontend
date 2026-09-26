@@ -41,15 +41,14 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-generate slug from name
-categorySchema.pre('save', function (next) {
+// Auto-generate slug from name (Mongoose 9: async, no next())
+categorySchema.pre('save', async function () {
   if (this.isModified('name')) {
     this.slug = this.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
   }
-  next();
 });
 
 module.exports = mongoose.model('Category', categorySchema);

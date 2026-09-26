@@ -17,7 +17,7 @@ const searchProducts = async (req, res, next) => {
       limit = 10,
     } = req.query;
 
-    const filter = { status: { $in: ['Active', 'Low Stock'] } };
+    const filter = { status: { $ne: 'Inactive' } };
 
     // Full-text search on name + description
     if (q && q.trim()) {
@@ -135,14 +135,16 @@ const getAllPublicProducts = async (req, res, next) => {
   try {
     const {
       category, minPrice, maxPrice, sort = 'newest',
-      tags, page = 1, limit = 12,
+      tags, page = 1, limit = 50,
     } = req.query;
 
-    const filter = { status: { $in: ['Active', 'Low Stock'] } };
+    // Show everything except explicitly Inactive products
+    const filter = { status: { $ne: 'Inactive' } };
     if (category) filter.category = category;
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseFloat(minPrice);
+
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
     if (tags) filter.tags = { $in: Array.isArray(tags) ? tags : [tags] };

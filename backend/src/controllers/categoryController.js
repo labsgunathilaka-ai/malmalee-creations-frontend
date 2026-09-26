@@ -34,7 +34,7 @@ const createCategory = async (req, res, next) => {
     const { name, description, displayOrder, status } = req.body;
     if (!name) { res.status(400); throw new Error('Category name is required'); }
 
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    const image = req.file ? `/uploads/images/${req.file.filename}` : null;
     const category = await Category.create({ name, description, displayOrder: displayOrder || 0, status: status || 'Active', image });
 
     res.status(201).json({ success: true, message: 'Category created successfully', data: category });
@@ -52,7 +52,7 @@ const updateCategory = async (req, res, next) => {
     if (description !== undefined) category.description = description;
     if (displayOrder !== undefined) category.displayOrder = displayOrder;
     if (status !== undefined) category.status = status;
-    if (req.file) category.image = `/uploads/${req.file.filename}`;
+    if (req.file) category.image = `/uploads/images/${req.file.filename}`;
 
     const updated = await category.save();
     res.status(200).json({ success: true, message: 'Category updated successfully', data: updated });
