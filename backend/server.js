@@ -11,7 +11,11 @@ connectDB();
 const app = express();
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -53,3 +57,11 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+// ─── Debug: check all products raw (no filter) ───────────────────────────────
+// Remove this in production
+const Product = require('./src/models/Product');
+app.get('/api/debug/products', async (req, res) => {
+  const all = await Product.find({}).select('name status stock');
+  res.json({ count: all.length, data: all });
+});
