@@ -1,3 +1,5 @@
+app.use(cors());
+
 const express  = require('express');
 const dotenv   = require('dotenv');
 const cors     = require('cors');
@@ -65,3 +67,13 @@ app.get('/api/debug/products', async (req, res) => {
   const all = await Product.find({}).select('name status stock');
   res.json({ count: all.length, data: all });
 });
+
+const adminRoutes = require('./routes/adminRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
+app.use('/api/admin', adminRoutes);
+app.use('/api/orders', orderRoutes);
+
+
+
+

@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
       
-      {/* Main Sidebar - එක් Sidebar එකක් පමණි */}
+     
       <aside className="w-64 bg-[#ffaed7] text-gray-900 flex flex-col justify-between p-6">
         <div>
           <div className="text-center mb-10">
