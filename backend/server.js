@@ -1,10 +1,8 @@
-app.use(cors());
-
-const express  = require('express');
-const dotenv   = require('dotenv');
-const cors     = require('cors');
-const path     = require('path');
-const connectDB    = require('./src/config/db');
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
+const connectDB = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 
 dotenv.config();
@@ -14,9 +12,10 @@ const app = express();
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,6 +24,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+
+// Auth & Customer Routes (Sign Up, Sign In, Sign Out, Forgot Password, Profile Update)
+app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/customer', require('./src/routes/authRoutes'));
+
+// Contact Us Routes
+app.use('/api/contact', require('./src/routes/contactRoutes'));
 
 // Public routes (Home Page, Product Details, Categories)
 app.use('/api', require('./src/routes/publicRoutes'));
@@ -35,16 +41,32 @@ app.use('/api/search', require('./src/routes/searchRoutes'));
 // Upload routes (image + video)
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 
-// Admin routes (CRUD)
+// Admin & Order routes
 app.use('/api/admin/categories', require('./src/routes/categoryRoutes'));
 app.use('/api/admin/products',   require('./src/routes/productRoutes'));
+app.use('/api/admin',            require('./src/routes/adminRoutes'));
+app.use('/api/orders',           require('./src/routes/orderRoutes'));
 
-// Health check
+// Health check / API Index
 app.get('/', (req, res) => {
   res.json({
     message: 'Malmalee Creations API is running',
     status:  'OK',
     endpoints: {
+      auth: {
+        signUp:         'POST /api/auth/signup',
+        signIn:         'POST /api/auth/signin',
+        signOut:        'POST /api/auth/signout',
+        forgotPassword: 'POST /api/auth/forgot-password',
+        resetPassword:  'POST /api/auth/reset-password',
+        getProfile:     'GET  /api/auth/profile (Bearer token)',
+        updateProfile:  'PUT  /api/auth/profile (Bearer token)',
+        updatePassword: 'PUT  /api/auth/update-password (Bearer token)'
+      },
+      contact: {
+        submit: 'POST /api/contact',
+        getAll: 'GET  /api/contact'
+      },
       public:    ['GET /api/products', 'GET /api/products/:id', 'GET /api/products/featured', 'GET /api/products/new-arrivals', 'GET /api/categories'],
       search:    ['GET /api/search?q=', 'GET /api/search/suggestions?q='],
       upload:    ['POST /api/upload/images', 'POST /api/upload/video', 'POST /api/upload/product-media'],
@@ -54,26 +76,19 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error Handler (must be last)
+// Debug: check all products raw
+const Product = require('./src/models/Product');
+app.get('/api/debug/products', async (req, res) => {
+  try {
+    const all = await Product.find({}).select('name status stock');
+    res.json({ count: all.length, data: all });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Error Handler (must be after routes)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-// ─── Debug: check all products raw (no filter) ───────────────────────────────
-// Remove this in production
-const Product = require('./src/models/Product');
-app.get('/api/debug/products', async (req, res) => {
-  const all = await Product.find({}).select('name status stock');
-  res.json({ count: all.length, data: all });
-});
-
-const adminRoutes = require('./routes/adminRoutes');
-const orderRoutes = require('./routes/orderRoutes');
-
-app.use('/api/admin', adminRoutes);
-app.use('/api/orders', orderRoutes);
-
-
-
-
