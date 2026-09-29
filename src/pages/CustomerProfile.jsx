@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiUser, 
@@ -18,21 +18,45 @@ import {
   FiAward
 } from 'react-icons/fi';
 
+const API_BASE = 'http://localhost:5000';
+
 const CustomerProfile = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('orders'); // 'profile' | 'orders' | 'addresses' | 'wishlist' | 'security'
+  const token = localStorage.getItem('malmalee_token');
+
+  const [activeTab, setActiveTab] = useState('orders');
   const [saveToast, setSaveToast] = useState('');
 
-  // User details state
-  const [userProfile, setUserProfile] = useState({
-    fullName: 'Clara Beauchamp',
-    email: 'clara@atelier.com',
-    phone: '+94 77 123 4567',
-    birthday: '1996-05-14',
-    favoriteCategory: 'Bespoke Mulberry Silk Scrunchies',
-    tier: 'Gold Atelier Patron',
-    points: 650,
-  });
+  // User details state — pre-seed from localStorage, then refresh from API
+  const [userProfile, setUserProfile] = useState(
+    JSON.parse(localStorage.getItem('malmalee_user') || 'null') || {
+      fullName: '',
+      email: '',
+      phone: '',
+      birthday: '',
+      favoriteCategory: '',
+      tier: 'Atelier Patron',
+      points: 0,
+    }
+  );
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetch(`${API_BASE}/api/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          setUserProfile(d.data);
+          localStorage.setItem('malmalee_user', JSON.stringify(d.data));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Edit mode for profile
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -43,7 +67,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
     {
       id: 'MC-84920',
       date: 'March 14, 2026',
-      status: 'In Tailoring', // 'In Tailoring' | 'Dispatched' | 'Delivered'
+      status: 'In Tailoring',
       total: 'Rs 1,280.00',
       payment: 'Credit Card (Paid)',
       items: [
@@ -148,11 +172,37 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
     setTimeout(() => setSaveToast(''), 3000);
   };
 
-  const handleSaveProfile = (e) => {
+  const handleUpdate = async (updatedData) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(updatedData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUserProfile(data.data);
+        localStorage.setItem('malmalee_user', JSON.stringify(data.data));
+        triggerToast('Personal profile updated successfully.');
+      } else {
+        triggerToast(data.message || 'Update failed.');
+      }
+    } catch {
+      triggerToast('Cannot connect to server.');
+    }
+  };
+
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
-    setUserProfile({ ...tempProfile });
     setIsEditingProfile(false);
-    triggerToast('Personal profile updated successfully.');
+    await handleUpdate(tempProfile);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('malmalee_token');
+    localStorage.removeItem('malmalee_user');
+    if (onLogout) onLogout();
+    navigate('/login');
   };
 
   const handleSetDefaultAddress = (id) => {
@@ -187,6 +237,14 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
     triggerToast('Security password updated successfully.');
   };
 
+  // Derive initials for avatar
+  const initials = (userProfile?.fullName || userProfile?.name || 'U')
+    .split(' ')
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
     <div className="min-h-screen bg-[#faf8f5] text-gray-800 font-sans pb-16">
       
@@ -215,21 +273,21 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
             <div className="flex items-center space-x-4 sm:space-x-6">
               {/* Initials Avatar */}
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-darkPurple text-white flex items-center justify-center font-playfair text-2xl sm:text-3xl font-bold shadow-md shadow-purple-950/20">
-                CB
+                {initials}
               </div>
               
               <div>
                 <div className="flex items-center space-x-3">
                   <h1 className="font-playfair text-2xl sm:text-3xl font-bold text-darkPurple">
-                    {userProfile.fullName}
+                    {userProfile?.fullName || userProfile?.name || 'Guest'}
                   </h1>
                   <span className="bg-amber-100/80 text-amber-900 border border-amber-300/60 text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                     <FiAward className="text-amber-700" />
-                    {userProfile.tier}
+                    {userProfile?.tier || 'Atelier Patron'}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  {userProfile.email} • {userProfile.phone}
+                  {userProfile?.email} {userProfile?.phone ? `• ${userProfile.phone}` : ''}
                 </p>
               </div>
             </div>
@@ -256,7 +314,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
 
               <div className="bg-[#faf8f5] px-4 py-2.5 rounded-xl border border-[#efe7dd] text-center min-w-[100px]">
                 <span className="block font-bold text-primaryPurple text-lg sm:text-xl">
-                  {userProfile.points}
+                  {userProfile?.points || 0}
                 </span>
                 <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium">
                   Atelier Pts
@@ -286,7 +344,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
             >
               <div className="flex items-center space-x-3">
                 <FiPackage className="text-base" />
-                <span>Orders & Tracking</span>
+                <span>Orders &amp; Tracking</span>
               </div>
               <span className={`text-[11px] px-2 py-0.5 rounded-full ${activeTab === 'orders' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
                 {orders.length}
@@ -352,17 +410,14 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
             >
               <div className="flex items-center space-x-3">
                 <FiLock className="text-base" />
-                <span>Security & Password</span>
+                <span>Security &amp; Password</span>
               </div>
               <FiChevronRight className="text-xs opacity-60" />
             </button>
 
             <div className="border-t border-gray-100 pt-2 mt-2">
               <button
-                onClick={() => {
-                  if (onLogout) onLogout();
-                  navigate('/login');
-                }}
+                onClick={handleLogout}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs sm:text-sm font-medium text-red-600 hover:bg-red-50 transition cursor-pointer"
               >
                 <FiLogOut className="text-base" />
@@ -380,7 +435,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="font-playfair text-2xl font-bold text-darkPurple">
-                    Bespoke Orders & History
+                    Bespoke Orders &amp; History
                   </h2>
                   <span className="text-xs text-gray-500">
                     Showing {orders.length} recent creations
@@ -425,7 +480,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                       <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
                         <div className="flex flex-col items-center">
                           <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs mb-1">✓</div>
-                          <span className="font-medium text-gray-800">Pattern Cut & Handcrafted</span>
+                          <span className="font-medium text-gray-800">Pattern Cut &amp; Handcrafted</span>
                         </div>
                         <div className="flex flex-col items-center">
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs mb-1 ${
@@ -519,8 +574,8 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                         </label>
                         <input
                           type="text"
-                          value={tempProfile.fullName}
-                          onChange={(e) => setTempProfile({ ...tempProfile, fullName: e.target.value })}
+                          value={tempProfile.fullName || tempProfile.name || ''}
+                          onChange={(e) => setTempProfile({ ...tempProfile, fullName: e.target.value, name: e.target.value })}
                           className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
                           required
                         />
@@ -532,7 +587,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                         </label>
                         <input
                           type="email"
-                          value={tempProfile.email}
+                          value={tempProfile.email || ''}
                           onChange={(e) => setTempProfile({ ...tempProfile, email: e.target.value })}
                           className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
                           required
@@ -545,7 +600,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                         </label>
                         <input
                           type="text"
-                          value={tempProfile.phone}
+                          value={tempProfile.phone || ''}
                           onChange={(e) => setTempProfile({ ...tempProfile, phone: e.target.value })}
                           className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
                         />
@@ -557,7 +612,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                         </label>
                         <input
                           type="date"
-                          value={tempProfile.birthday}
+                          value={tempProfile.birthday || ''}
                           onChange={(e) => setTempProfile({ ...tempProfile, birthday: e.target.value })}
                           className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
                         />
@@ -586,36 +641,38 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                       <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
                         Full Legal Name
                       </span>
-                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile.fullName}</p>
+                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile?.fullName || userProfile?.name || '—'}</p>
                     </div>
 
                     <div>
                       <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
                         Email Address
                       </span>
-                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile.email}</p>
+                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile?.email || '—'}</p>
                     </div>
 
                     <div>
                       <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
                         Contact Phone
                       </span>
-                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile.phone}</p>
+                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile?.phone || '—'}</p>
                     </div>
 
                     <div>
                       <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
                         Date of Birth
                       </span>
-                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile.birthday}</p>
+                      <p className="text-sm font-medium text-gray-800 mt-1">{userProfile?.birthday || '—'}</p>
                     </div>
 
-                    <div className="sm:col-span-2 pt-4 border-t border-gray-100">
-                      <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
-                        Patron Category Preference
-                      </span>
-                      <p className="text-sm font-medium text-darkPurple mt-1">{userProfile.favoriteCategory}</p>
-                    </div>
+                    {userProfile?.favoriteCategory && (
+                      <div className="sm:col-span-2 pt-4 border-t border-gray-100">
+                        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                          Patron Category Preference
+                        </span>
+                        <p className="text-sm font-medium text-darkPurple mt-1">{userProfile.favoriteCategory}</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
