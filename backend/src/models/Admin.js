@@ -1,18 +1,26 @@
+const mongoose = require('mongoose');
+const bcrypt   = require('bcryptjs');
 
-const admins = [
+const adminSchema = new mongoose.Schema(
   {
-    id: 1,
-    email: 'admin@gmail.com',
-    password: 'admin123',
-    name: 'Super Admin'
-  }
-];
+    name:     { type: String, required: true },
+    email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true, minlength: 6 },
+    role:     { type: String, enum: ['superadmin', 'admin'], default: 'admin' },
+  },
+  { timestamps: true }
+);
 
-class Admin {
-  static async findByEmail(email) {
-    
-    return admins.find(admin => admin.email === email);
+// Hash password before saving
+adminSchema.pre('save', async function () {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
   }
-}
+});
 
-module.exports = Admin;
+// Compare password helper
+adminSchema.methods.matchPassword = async function (entered) {
+  return await bcrypt.compare(entered, this.password);
+};
+
+module.exports = mongoose.model('Admin', adminSchema);
