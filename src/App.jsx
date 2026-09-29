@@ -7,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerSignUp from './pages/CustomerSignUp';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import CustomerProfile from './pages/CustomerProfile';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -15,6 +16,7 @@ import Contact from './pages/CustomerContact';
 import Cart from './pages/CustomerCart';
 import Checkout from './pages/CustomerCheckout';
 import OrderConfirmation from './pages/CustomerOrderConfirmation';
+import CustomerOrderHistory from './pages/CustomerOrderHistory';
 import AdminOrderDetails from './pages/AdminOrderDetails';
 
 // Layout wrapper for customer-facing pages (with Header + Footer)
@@ -39,6 +41,7 @@ function App() {
         <Route path="/login" element={<CustomerLogin onLogin={handleLogin} />} />
         <Route path="/signup" element={<CustomerSignUp onLogin={handleLogin} />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Admin pages */}
         <Route path="/admin" element={<div className="flex flex-col min-h-screen"><AdminDashboard /><Footer /></div>} />
@@ -53,6 +56,7 @@ function App() {
         <Route path="/cart" element={<CustomerLayout isLoggedIn={isLoggedIn} onLogout={handleLogout}><Cart /></CustomerLayout>} />
         <Route path="/checkout" element={<CustomerLayout isLoggedIn={isLoggedIn} onLogout={handleLogout}><Checkout /></CustomerLayout>} />
         <Route path="/order-confirmation" element={<CustomerLayout isLoggedIn={isLoggedIn} onLogout={handleLogout}><OrderConfirmation /></CustomerLayout>} />
+        <Route path="/my-orders" element={<CustomerLayout isLoggedIn={isLoggedIn} onLogout={handleLogout}><CustomerOrderHistory /></CustomerLayout>} />
         <Route path="/profile" element={<CustomerLayout isLoggedIn={isLoggedIn} onLogout={handleLogout}><CustomerProfile onLogout={handleLogout} /></CustomerLayout>} />
 
         {/* Default redirect */}
@@ -60,6 +64,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
+
   );
 }
 

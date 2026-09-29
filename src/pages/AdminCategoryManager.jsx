@@ -48,7 +48,7 @@ const AdminCategoryManager = () => {
   useEffect(() => { loadCategories(); }, []);
 
   // ── Filter + page ─────────────────────────────────────────────────────────
-  const filtered   = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered   = categories.filter(c => (c.name || "").toLowerCase().includes(search.toLowerCase()));
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paged      = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 

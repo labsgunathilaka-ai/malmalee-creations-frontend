@@ -1,196 +1,147 @@
-import React, { useState } from 'react';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import product2 from '../assets/product-2.jpg';
-import product3 from '../assets/product-3.jpg';
-import product4 from '../assets/product-4.jpg';
-import product5 from '../assets/product-5.jpg';
+import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowLeft } from 'react-icons/fi';
 
-const Cart = () => {
+const API_BASE = 'http://localhost:5000';
+const SHIPPING_FEE = 350;
+
+const CustomerCart = () => {
   const navigate = useNavigate();
-  // Sample Cart Items
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Imperial Damask Velvet Bow',
-      price: 480,
-      quantity: 2,
-      image: product2,
-    },
-    {
-      id: 2,
-      name: 'Petit Fleur Silk Minaudière',
-      price: 185,
-      quantity: 4,
-      image: product3,
-    },
-    {
-      id: 3,
-      name: 'Versailles French Lace Ribbon',
-      price: 340,
-      quantity: 1,
-      image: product4,
-    },
-    {
-      id: 4,
-      name: 'Heirloom Padded Velvet Headband',
-      price: 540,
-      quantity: 3,
-      image: product5,
-    },
-  ]);
+  const [cart, setCart] = useState([]);
 
-  const shippingCost = 450;
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('malmalee_cart');
+    setCart(stored ? JSON.parse(stored) : []);
+  }, []);
 
-  const handleQuantityChange = (id, type) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id === id) {
-          const newQty = type === 'increase' ? item.quantity + 1 : item.quantity - 1;
-          return { ...item, quantity: newQty > 0 ? newQty : 1 };
-        }
-        return item;
-      })
-    );
+  // Save cart to localStorage whenever it changes
+  const saveCart = (updated) => {
+    setCart(updated);
+    localStorage.setItem('malmalee_cart', JSON.stringify(updated));
   };
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const total = subtotal + shippingCost;
+  const updateQty = (productId, delta) => {
+    const updated = cart.map(item =>
+      item.productId === productId
+        ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+        : item
+    );
+    saveCart(updated);
+  };
+
+  const removeItem = (productId) => {
+    saveCart(cart.filter(i => i.productId !== productId));
+  };
+
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const total = subtotal + (cart.length > 0 ? SHIPPING_FEE : 0);
+
+  // ── Empty cart ─────────────────────────────────────────────────────────────
+  if (cart.length === 0) return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 font-sans">
+      <FiShoppingBag className="w-20 h-20 text-pink-200 mb-6" />
+      <h2 className="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
+      <p className="text-gray-400 mb-8">Discover our luxury silk accessories and add your favourites.</p>
+      <button onClick={() => navigate('/products')}
+        className="px-8 py-3 bg-[#ff0081] hover:bg-[#c40063] text-white font-bold rounded-xl transition shadow-sm">
+        Shop Now
+      </button>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#fff8fa] py-10 px-4 md:px-12 font-sans text-[#1a1a1a]">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Page Title */}
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 tracking-wider uppercase font-serif text-[#ff0081]">
-          YOUR SHOPPING CART
-        </h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 font-sans">
+      <div className="max-w-5xl mx-auto">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
-          {/* Left Column: Cart Items Table */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-[#ff77bc]/40 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse font-sans">
-                
-                {/* Table Header with Light Pastel Pink Background (#ffcae5) & Dark Text */}
-                <thead className="bg-[#ffcae5] text-[#1a1a1a] font-serif font-bold text-sm md:text-base border-b border-[#ff48a5]/30">
-                  <tr>
-                    <th className="py-4 px-4 text-center">#</th>
-                    <th className="py-4 px-4">Product Image</th>
-                    <th className="py-4 px-4">Item Details</th>
-                    <th className="py-4 px-4 text-center">Price (LKR)</th>
-                    <th className="py-4 px-4 text-center">Quantity</th>
-                    <th className="py-4 px-4 text-right">Subtotal (Rs)</th>
-                  </tr>
-                </thead>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <button onClick={() => navigate('/products')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#ff0081] transition">
+            <FiArrowLeft className="w-4 h-4" /> Continue Shopping
+          </button>
+          <span className="text-gray-300">|</span>
+          <h1 className="text-2xl font-bold text-gray-800">Shopping Cart</h1>
+          <span className="ml-1 text-sm text-gray-400">({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
+        </div>
 
-                {/* Table Body */}
-                <tbody className="divide-y divide-[#ff77bc]/20">
-                  {cartItems.map((item, index) => (
-                    <tr key={item.id} className="hover:bg-[#ffcae5]/20 transition">
-                      <td className="py-4 px-4 font-bold text-center text-lg text-[#ff0081]">{index + 1}</td>
-                      <td className="py-4 px-4">
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-16 h-16 object-cover rounded-md border border-[#ff77bc]/40"
-                        />
-                      </td>
-                      <td className="py-4 px-4 font-serif font-semibold text-[#1a1a1a]">
-                        {item.name}
-                      </td>
-                      <td className="py-4 px-4 text-center font-semibold text-gray-700">
-                        {item.price}/=
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center justify-center border border-[#ff48a5] rounded overflow-hidden w-28 mx-auto bg-white">
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, 'decrease')}
-                            className="p-2 text-[#ff0081] hover:bg-[#ffcae5] transition"
-                          >
-                            <FaMinus size={10} />
-                          </button>
-                          <span className="flex-1 text-center font-bold text-sm text-[#1a1a1a]">
-                            {item.quantity}
-                          </span>
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, 'increase')}
-                            className="p-2 text-[#ff0081] hover:bg-[#ffcae5] transition"
-                          >
-                            <FaPlus size={10} />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-right font-bold text-[#1a1a1a]">
-                        {(item.price * item.quantity).toLocaleString()}/=
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-              </table>
-            </div>
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-4">
+            {cart.map(item => {
+              const imgUrl = item.image
+                ? (item.image.startsWith('http') ? item.image : `${API_BASE}${item.image}`)
+                : null;
+              return (
+                <div key={item.productId} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex gap-4">
+                  {/* Image */}
+                  <div className="w-24 h-24 rounded-xl overflow-hidden bg-pink-50 border border-pink-100 flex-shrink-0">
+                    {imgUrl
+                      ? <img src={imgUrl} alt={item.name} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-pink-300 text-2xl font-bold">{item.name?.[0]}</div>
+                    }
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-800 text-sm leading-tight mb-1 pr-4">{item.name}</h3>
+                    {item.sku && <p className="text-xs text-gray-400 mb-2">SKU: {item.sku}</p>}
+                    <p className="text-[#ff0081] font-bold">Rs {item.price.toLocaleString()}.00</p>
+                  </div>
+
+                  {/* Qty + Remove */}
+                  <div className="flex flex-col items-end justify-between">
+                    <button onClick={() => removeItem(item.productId)}
+                      className="text-gray-300 hover:text-red-400 transition">
+                      <FiTrash2 className="w-4 h-4" />
+                    </button>
+                    <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 py-1">
+                      <button onClick={() => updateQty(item.productId, -1)}
+                        className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-[#ff0081] transition">
+                        <FiMinus className="w-3 h-3" />
+                      </button>
+                      <span className="text-sm font-semibold text-gray-800 w-6 text-center">{item.quantity}</span>
+                      <button onClick={() => updateQty(item.productId, 1)}
+                        className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-[#ff0081] transition">
+                        <FiPlus className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <p className="text-sm font-bold text-gray-700">Rs {(item.price * item.quantity).toLocaleString()}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Right Column: Order Summary Card with Light Pastel Background */}
-          <div className="bg-[#ffaed7]/20 rounded-2xl border border-[#ff48a5]/40 p-6 shadow-sm font-sans">
-            <h2 className="font-serif text-2xl font-bold text-[#ff0081] mb-6 tracking-wide">
-              ORDER SUMMARY
-            </h2>
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-6">
+              <h2 className="text-sm font-bold text-gray-800 mb-5 uppercase tracking-wider">Order Summary</h2>
 
-            <div className="space-y-4 text-[#1a1a1a] text-base mb-6">
-              <div className="flex justify-between font-serif">
-                <span className="font-bold">Subtotal</span>
-                <span className="font-bold">Rs {subtotal.toLocaleString()}.00</span>
+              <div className="space-y-3 text-sm text-gray-600 mb-4">
+                <div className="flex justify-between">
+                  <span>Subtotal ({cart.reduce((s,i)=>s+i.quantity,0)} items)</span>
+                  <span className="font-semibold text-gray-800">Rs {subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="font-semibold text-gray-800">Rs {SHIPPING_FEE.toLocaleString()}</span>
+                </div>
+                <div className="border-t border-gray-100 pt-3 flex justify-between text-base font-bold text-gray-800">
+                  <span>Total</span>
+                  <span className="text-[#ff0081]">Rs {total.toLocaleString()}</span>
+                </div>
               </div>
-              <div className="flex justify-between font-serif">
-                <span className="font-bold">Estimated Shipping</span>
-                <span className="font-bold">Rs {shippingCost.toLocaleString()}.00</span>
-              </div>
-            </div>
 
-            {/* Promo Code Input */}
-            <div className="flex gap-2 mb-6">
-              <input 
-                type="text" 
-                placeholder="Promo Code" 
-                className="flex-1 border border-[#ff48a5] rounded-lg px-4 py-2 text-sm bg-white text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#ff0081]"
-              />
-              <button className="bg-[#ff48a5] text-white px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-[#ff0081] transition cursor-pointer">
-                APPLY
+              <button onClick={() => navigate('/checkout')}
+                className="w-full py-3 bg-[#ff0081] hover:bg-[#c40063] text-white font-bold rounded-xl transition shadow-sm text-sm">
+                Proceed to Checkout
               </button>
-            </div>
 
-            <hr className="my-6 border-[#ff77bc]/50" />
-
-            {/* Total Section */}
-            <div className="flex justify-between font-serif text-xl font-bold text-[#1a1a1a] mb-6">
-              <span>TOTAL :</span>
-              <span className="text-[#ff0081]">Rs {total.toLocaleString()}.00</span>
-            </div>
-
-            {/* Checkout Actions */}
-            <div className="space-y-4">
-              {/* Primary Action Button (#ff0081) */}
-              <button 
-                onClick={() => navigate('/checkout')}
-                className="w-full bg-[#ff0081] text-white py-3.5 rounded-lg font-serif font-bold text-sm tracking-widest uppercase hover:bg-[#d9006e] transition shadow-md cursor-pointer"
-              >
-                PROCEED TO CHECKOUT
-              </button>
-              
-              {/* Secondary Navigation Link */}
-              <div className="text-center">
-                <button 
-                  onClick={() => navigate('/home')}
-                  className="font-serif font-bold text-[#ff0081] hover:underline text-sm inline-block cursor-pointer bg-transparent border-none"
-                >
-                  Continue Shopping
-                </button>
+              <div className="mt-4 bg-pink-50 rounded-xl p-3 text-xs text-pink-700 text-center">
+                🚚 Cash on Delivery available island-wide
               </div>
             </div>
-
           </div>
 
         </div>
@@ -199,4 +150,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default CustomerCart;
