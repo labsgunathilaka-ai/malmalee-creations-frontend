@@ -1,53 +1,72 @@
+const mongoose = require('mongoose');
 
-let orders = [];
-let nextOrderId = 1;
+// ── Order Item sub-schema ─────────────────────────────────────────────────────
+const orderItemSchema = new mongoose.Schema({
+  product:      { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  name:         { type: String, required: true },
+  price:        { type: Number, required: true },
+  quantity:     { type: Number, required: true, min: 1 },
+  image:        { type: String, default: '' },
+  subtotal:     { type: Number, required: true },
+}, { _id: false });
 
-class Order {
-  
-  static async create(orderData, items) {
-    const newOrder = {
-      id: nextOrderId++,
-      customer_name: orderData.customer_name,
-      customer_email: orderData.customer_email,
-      customer_phone: orderData.customer_phone,
-      shipping_address: orderData.shipping_address,
-      total_amount: orderData.total_amount,
-      payment_method: 'Cash on Delivery',
-      status: 'Pending',
-      created_at: new Date().toISOString(),
-      items: items.map((item, index) => ({
-        id: index + 1,
-        product_name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.quantity * item.price,
-        image_url: item.image
-      }))
-    };
+// ── Shipping Address sub-schema ───────────────────────────────────────────────
+const addressSchema = new mongoose.Schema({
+  fullName:  { type: String, required: true },
+  phone:     { type: String, required: true },
+  address:   { type: String, required: true },
+  city:      { type: String, required: true },
+  province:  { type: String, default: '' },
+  postalCode:{ type: String, default: '' },
+}, { _id: false });
 
-    orders.push(newOrder);
-    return newOrder.id;
+// ── Main Order schema ─────────────────────────────────────────────────────────
+const orderSchema = new mongoose.Schema(
+  {
+    orderNumber: {
+      type: String,
+      unique: true,
+    },
+    customer: {
+      name:  { type: String, required: true },
+      email: { type: String, required: true },
+      phone: { type: String, default: '' },
+    },
+    shippingAddress: { type: addressSchema, required: true },
+    items:           { type: [orderItemSchema], required: true },
+    subtotal:        { type: Number, required: true },
+    shippingFee:     { type: Number, default: 0 },
+    total:           { type: Number, required: true },
+    paymentMethod: {
+      type: String,
+      enum: ['Cash on Delivery', 'Bank Transfer', 'Online'],
+      default: 'Cash on Delivery',
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+      default: 'Pending',
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+      default: 'Pending',
+    },
+    notes: { type: String, default: '' },
+  },
+  { timestamps: true }
+);
+
+// Auto-generate order number (e.g. ORD-20260928-001)
+orderSchema.pre('save', async function () {
+  if (!this.orderNumber) {
+    const date = new Date();
+    const dateStr = date.getFullYear().toString() +
+      String(date.getMonth() + 1).padStart(2, '0') +
+      String(date.getDate()).padStart(2, '0');
+    const count = await mongoose.model('Order').countDocuments();
+    this.orderNumber = `ORD-${dateStr}-${String(count + 1).padStart(3, '0')}`;
   }
+});
 
-  
-  static async getAll() {
-    return orders;
-  }
-
-  
-  static async getById(orderId) {
-    return orders.find(o => o.id === parseInt(orderId));
-  }
-
-  
-  static async updateStatus(orderId, status) {
-    const order = orders.find(o => o.id === parseInt(orderId));
-    if (order) {
-      order.status = status;
-      return true;
-    }
-    return false;
-  }
-}
-
-module.exports = Order;
+module.exports = mongoose.model('Order', orderSchema);

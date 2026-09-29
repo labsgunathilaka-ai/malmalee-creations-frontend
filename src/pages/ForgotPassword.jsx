@@ -1,37 +1,65 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiKey, FiMail, FiCheck, FiArrowLeft } from 'react-icons/fi';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiKey, FiCheck, FiArrowLeft } from "react-icons/fi";
+
+const API_BASE = "http://localhost:5000";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
+    setErrorMsg("");
 
     if (!email.trim()) {
-      setErrorMsg('Please enter your email address.');
+      setErrorMsg("Please enter your email address.");
       return;
     }
 
     setIsLoading(true);
-    // Simulate sending password reset email
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setIsSubmitted(true);
+      } else {
+        setErrorMsg(data.message || "Failed to send reset email. Please try again.");
+      }
+    } catch (err) {
+      setErrorMsg("Network error. Please check your connection and try again.");
+    } finally {
       setIsLoading(false);
-      setIsSubmitted(true);
-    }, 900);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("A new password reset link has been dispatched to your email.");
+      } else {
+        alert(data.message || "Failed to resend. Please try again.");
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
       setIsLoading(false);
-      alert('A new password reset link has been dispatched to your email.');
-    }, 600);
+    }
   };
 
   return (
@@ -42,20 +70,20 @@ const ForgotPassword = () => {
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-200/40 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-amber-100/60 rounded-full blur-3xl"></div>
         {/* Delicate grid pattern */}
-        <div 
+        <div
           className="w-full h-full"
           style={{
             backgroundImage: `radial-gradient(#3d005b 0.5px, transparent 0.5px)`,
-            backgroundSize: '32px 32px',
-            opacity: 0.04
+            backgroundSize: "32px 32px",
+            opacity: 0.04,
           }}
         />
       </div>
 
       {/* Top Header: Logo with ONLY letters in Purple on Top-Left */}
       <header className="relative z-10 w-full px-8 sm:px-12 pt-8 pb-4 flex items-center">
-        <div 
-          onClick={() => navigate('/home')}
+        <div
+          onClick={() => navigate("/home")}
           className="cursor-pointer group inline-block"
         >
           <span className="font-playfair text-2xl sm:text-3xl font-semibold tracking-wide text-darkPurple transition-colors duration-200">
@@ -116,7 +144,10 @@ const ForgotPassword = () => {
                     className="w-full bg-primaryPurple hover:bg-darkPurple active:scale-[0.99] text-white font-medium text-sm py-2.5 sm:py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-75 cursor-pointer"
                   >
                     {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Sending...</span>
+                      </>
                     ) : (
                       <span>Send Reset Link</span>
                     )}
@@ -134,19 +165,20 @@ const ForgotPassword = () => {
                 Check Your Inbox
               </h2>
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-xs mx-auto mb-6">
-                We've sent password reset instructions to <span className="font-semibold text-darkPurple">{email}</span>. Please check your inbox and spam folder.
+                Check your email for reset instructions. We've sent a link to{" "}
+                <span className="font-semibold text-darkPurple">{email}</span>. Please check your inbox and spam folder.
               </p>
 
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate("/login")}
                   className="w-full bg-primaryPurple hover:bg-darkPurple active:scale-[0.99] text-white font-medium text-sm py-2.5 sm:py-3 rounded-lg shadow-sm transition duration-200 cursor-pointer"
                 >
                   Return to Login
                 </button>
                 <p className="text-xs text-gray-500">
-                  Didn't receive the email?{' '}
+                  Didn't receive the email?{" "}
                   <button
                     type="button"
                     onClick={handleResend}
@@ -170,10 +202,10 @@ const ForgotPassword = () => {
           {/* Bottom Back to Login Link */}
           <div className="text-center text-xs sm:text-sm text-gray-600">
             <p>
-              Remember your password?{' '}
+              Remember your password?{" "}
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="text-primaryPurple font-semibold hover:text-darkPurple hover:underline ml-1 cursor-pointer transition"
               >
                 Back to Login
