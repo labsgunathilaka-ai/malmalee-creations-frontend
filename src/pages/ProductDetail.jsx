@@ -286,7 +286,11 @@ const ProductDetail = () => {
           {/* Buy Now + Wishlist Row */}
           <div className="flex gap-3">
             <button
-              onClick={() => navigate('/checkout')}
+              onClick={() => {
+                // Add to cart first, then go to checkout
+                handleAddToCart();
+                navigate('/checkout');
+              }}
               className="flex-1 py-3 px-6 border-2 border-primaryPurple text-primaryPurple rounded-lg font-semibold text-sm hover:bg-pink-50 transition"
             >
               Buy Now
