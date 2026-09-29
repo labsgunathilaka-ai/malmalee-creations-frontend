@@ -1,12 +1,40 @@
 import React, { useState } from 'react';
 import { FiClock, FiInstagram, FiMail, FiMapPin, FiPhone, FiSend } from 'react-icons/fi';
 
-const Contact = () => {
-  const [isSent, setIsSent] = useState(false);
+const API_BASE = 'http://localhost:5000';
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsSent(true);
+const Contact = () => {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, subject: form.subject, message: form.message })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+        setForm({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setError(data.message || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setError('Cannot connect to server. Please try again later.');
+    }
+    setLoading(false);
   };
 
   return (
@@ -96,9 +124,15 @@ const Contact = () => {
               <p className="text-sm text-gray-500 mt-2">We usually reply within one business day.</p>
             </div>
 
-            {isSent && (
+            {submitted && (
               <div className="bg-pink-50 border border-pink-200 text-pink-950 text-sm px-4 py-3 mb-6" role="status">
-                Thank you for reaching out. We&apos;ll be in touch soon.
+                Thank you! We will get back to you soon.
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 mb-6" role="alert">
+                {error}
               </div>
             )}
 
@@ -106,23 +140,55 @@ const Contact = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
                   Your name
-                  <input required type="text" name="name" className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple" />
+                  <input
+                    required
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
+                  />
                 </label>
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
                   Email address
-                  <input required type="email" name="email" className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple" />
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
+                  />
                 </label>
               </div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                 Subject
-                <input required type="text" name="subject" className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple" />
+                <input
+                  required
+                  type="text"
+                  name="subject"
+                  value={form.subject}
+                  onChange={handleChange}
+                  className="mt-2 w-full border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
+                />
               </label>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                 Message
-                <textarea required name="message" rows="5" className="mt-2 w-full resize-y border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple" />
+                <textarea
+                  required
+                  name="message"
+                  rows="5"
+                  value={form.message}
+                  onChange={handleChange}
+                  className="mt-2 w-full resize-y border border-gray-200 px-3 py-3 text-sm font-normal text-gray-800 outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple"
+                />
               </label>
-              <button type="submit" className="inline-flex items-center justify-center gap-2 bg-primaryPurple px-6 py-3 text-sm font-semibold text-white transition hover:bg-darkPurple">
-                Send message <FiSend />
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 bg-primaryPurple px-6 py-3 text-sm font-semibold text-white transition hover:bg-darkPurple disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Sending...' : (<>Send message <FiSend /></>)}
               </button>
             </form>
           </div>
