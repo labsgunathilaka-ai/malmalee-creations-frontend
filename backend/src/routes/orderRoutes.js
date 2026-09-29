@@ -1,10 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const orderController = require('../controllers/orderController');
+const router  = express.Router();
+const { createOrder, getOrderHistory } = require('../controllers/orderController');
 
-router.post('/', orderController.createOrder);
-router.get('/', orderController.getAllOrders);
-router.get('/:id', orderController.getOrderById);
-router.put('/:id/status', orderController.updateOrderStatus);
+// POST /api/orders               — Customer places a COD order
+router.post('/', createOrder);
+
+// GET  /api/orders/history?email=user@email.com  — Customer order history
+router.get('/history', getOrderHistory);
 
 module.exports = router;

@@ -1,7 +1,25 @@
 const express = require('express');
-const router = express.Router();
-const adminController = require('../controllers/adminController');
+const router  = express.Router();
+const { login, getMe }          = require('../controllers/adminController');
+const {
+  getAllOrders,
+  getOrderById,
+  updateOrderStatus,
+  getDashboardStats,
+} = require('../controllers/orderController');
 
-router.post('/login', adminController.login);
+// POST /api/admin/login
+router.post('/login', login);
+
+// GET  /api/admin/me
+router.get('/me', getMe);
+
+// GET  /api/admin/dashboard/stats  — Dashboard statistics
+router.get('/dashboard/stats', getDashboardStats);
+
+// Orders
+router.get('/orders',            getAllOrders);
+router.get('/orders/:id',        getOrderById);
+router.put('/orders/:id/status', updateOrderStatus);
 
 module.exports = router;
