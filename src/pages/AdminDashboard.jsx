@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaThLarge, 
@@ -18,23 +18,53 @@ import AdminOrderDetails from './AdminOrderDetails';
 import AdminCategoryManager from './AdminCategoryManager';
 import AdminProductManager from './AdminProductManager';
 
+const API_BASE = 'http://localhost:5000';
+
 const AdminDashboard = () => {
   
   const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
 
+  // --- Stats State ---
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    setStatsLoading(true);
+    fetch(`${API_BASE}/api/admin/dashboard/stats`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setStats(d.data);
+        setStatsLoading(false);
+      })
+      .catch(() => setStatsLoading(false));
+  }, []);
+
+  // --- Recent orders for dashboard table ---
+  const [recentOrders, setRecentOrders] = useState([]);
+  useEffect(() => {
+    fetch(`${API_BASE}/api/admin/orders`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setRecentOrders(d.data.slice(0, 5));
+      })
+      .catch(() => {});
+  }, []);
+
   const handleLogout = () => {
     navigate('/login');
   };
 
-  // Sample Data matching Figma wireframe
-  const orders = [
-    { id: 'Order #001', customer: 'Saman Perera', date: '2026-03-10', payment: 'COD', total: '1650/-', status: 'Pending' },
-    { id: 'Order #002', customer: 'Nimal Silva', date: '2026-03-09', payment: 'Card', total: '3450/-', status: 'Complete' },
-    { id: 'Order #003', customer: 'Kasun Jay', date: '2026-03-08', payment: 'COD', total: '1200/-', status: 'Pending' },
-    { id: 'Order #004', customer: 'Dilini Perera', date: '2026-03-07', payment: 'COD', total: '2450/-', status: 'Complete' },
-    { id: 'Order #005', customer: 'Amal Perera', date: '2026-03-06', payment: 'Card', total: '750/-', status: 'Pending' },
-  ];
+  // Skeleton card component
+  const SkeletonCard = () => (
+    <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8] animate-pulse">
+      <div className="flex justify-between items-center">
+        <div className="h-3 bg-gray-300 rounded w-24"></div>
+        <div className="h-4 w-4 bg-gray-300 rounded"></div>
+      </div>
+      <div className="h-8 bg-gray-300 rounded w-16 mt-4"></div>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
@@ -110,38 +140,58 @@ const AdminDashboard = () => {
           <div className="p-8">
             <h1 className="text-2xl font-bold text-[#ff0081] mb-6">Admin Dashboard</h1>
 
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
-                <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
-                  <span>Total Orders</span>
-                  <FaShoppingCart className="text-[#ff0081] text-base" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 mt-4">84</h2>
-              </div>
+              {statsLoading ? (
+                <>
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </>
+              ) : (
+                <>
+                  <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
+                    <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
+                      <span>Total Orders</span>
+                      <FaShoppingCart className="text-[#ff0081] text-base" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-800 mt-4">
+                      {stats ? stats.orders?.total ?? 0 : 0}
+                    </h2>
+                  </div>
 
-              <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
-                <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
-                  <span>Total Revenue (Rs)</span>
-                  <FaDollarSign className="text-[#ff0081] text-base" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 mt-4">65,000</h2>
-              </div>
+                  <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
+                    <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
+                      <span>Total Revenue (Rs)</span>
+                      <FaDollarSign className="text-[#ff0081] text-base" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-800 mt-4">
+                      {stats ? (stats.revenue?.total ?? 0).toLocaleString() : 0}
+                    </h2>
+                  </div>
 
-              <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
-                <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
-                  <span>Pending Orders</span>
-                  <FaClock className="text-[#ff0081] text-base" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 mt-4">11</h2>
-              </div>
+                  <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
+                    <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
+                      <span>Pending Orders</span>
+                      <FaClock className="text-[#ff0081] text-base" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-800 mt-4">
+                      {stats ? stats.orders?.pending ?? 0 : 0}
+                    </h2>
+                  </div>
 
-              <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
-                <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
-                  <span>Out Stock Products</span>
-                  <FaExclamationTriangle className="text-[#ff0081] text-base" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-800 mt-4">2</h2>
-              </div>
+                  <div className="bg-[#EFE8D8] p-5 rounded-xl flex flex-col justify-between border border-[#E5DB8]">
+                    <div className="flex justify-between items-center text-gray-700 text-xs font-semibold">
+                      <span>Out Stock Products</span>
+                      <FaExclamationTriangle className="text-[#ff0081] text-base" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-800 mt-4">
+                      {stats ? stats.products?.outOfStock ?? 0 : 0}
+                    </h2>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -162,28 +212,46 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {orders.map((order, idx) => (
-                      <tr key={idx} className="hover:bg-pink-50/50 transition">
-                        <td className="px-6 py-4 font-semibold text-gray-800">{order.id}</td>
-                        <td className="px-6 py-4">{order.customer}</td>
-                        <td className="px-6 py-4">{order.date}</td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-pink-100 text-pink-950">
-                            {order.payment}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-medium text-gray-700">{order.total}</td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`px-4 py-1 rounded-full text-[10px] font-semibold ${
-                            order.status === 'Complete' 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-amber-100 text-amber-700'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </td>
+                    {recentOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="px-6 py-8 text-center text-gray-400">No orders yet</td>
                       </tr>
-                    ))}
+                    ) : (
+                      recentOrders.map((order, idx) => (
+                        <tr key={order._id || idx} className="hover:bg-pink-50/50 transition">
+                          <td className="px-6 py-4 font-semibold text-gray-800">
+                            {order.orderNumber || `#${String(order._id).slice(-4).toUpperCase()}`}
+                          </td>
+                          <td className="px-6 py-4">
+                            {order.customer?.name
+                              || order.shippingAddress?.fullName
+                              || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4">
+                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : order.date || ''}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-pink-100 text-pink-950">
+                              {order.paymentMethod || order.payment || 'N/A'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-medium text-gray-700">
+                            {order.totalAmount != null
+                              ? Number(order.totalAmount).toLocaleString()
+                              : order.total || '0'}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`px-4 py-1 rounded-full text-[10px] font-semibold ${
+                              order.status === 'delivered' || order.status === 'Complete'
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {order.status || 'Pending'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

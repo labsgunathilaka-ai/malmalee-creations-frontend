@@ -50,9 +50,11 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
     })
       .then(r => r.json())
       .then(d => {
-        if (d.success) {
-          setUserProfile(d.data);
-          localStorage.setItem('malmalee_user', JSON.stringify(d.data));
+        // API returns { success: true, user: {...} }
+        const userData = d.user || d.data;
+        if (d.success && userData) {
+          setUserProfile(userData);
+          localStorage.setItem('malmalee_user', JSON.stringify(userData));
         }
       })
       .catch(() => {});
@@ -62,51 +64,36 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [tempProfile, setTempProfile] = useState({ ...userProfile });
 
-  // Sample Orders Data matching Malmalee luxury theme
-  const [orders] = useState([
-    {
-      id: 'MC-84920',
-      date: 'March 14, 2026',
-      status: 'In Tailoring',
-      total: 'Rs 1,280.00',
-      payment: 'Credit Card (Paid)',
-      items: [
-        {
-          name: 'Pure Mulberry Silk Cloud Scrunchie - Rose Quartz',
-          qty: 2,
-          price: 'Rs 280.00',
-          img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=150&auto=format&fit=crop&q=60'
-        },
-        {
-          name: 'Pearl Embroidered French Bow - Ivory',
-          qty: 1,
-          price: 'Rs 580.00',
-          img: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=150&auto=format&fit=crop&q=60'
+  // Orders from backend API
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('malmalee_user') || 'null');
+    if (!user?.email) return;
+    fetch(`${API_BASE}/api/orders/history?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && Array.isArray(d.data)) {
+          // Transform API data to match profile orders tab format
+          const mapped = d.data.map(o => ({
+            id: o.orderNumber || o._id?.toString().slice(-6).toUpperCase() || 'N/A',
+            date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : '',
+            status: o.status || 'Pending',
+            total: `Rs ${(o.total || 0).toLocaleString()}`,
+            payment: o.paymentMethod || 'Cash on Delivery',
+            items: (o.items || []).map(item => ({
+              name: item.name || 'Product',
+              qty: item.quantity || 1,
+              price: `Rs ${(Number(item.price) || 0).toLocaleString()}`,
+              img: item.image
+                ? (item.image.startsWith('http') ? item.image : `${API_BASE}${item.image}`)
+                : null,
+            })),
+          }));
+          setOrders(mapped);
         }
-      ]
-    },
-    {
-      id: 'MC-79104',
-      date: 'February 26, 2026',
-      status: 'Delivered',
-      total: 'Rs 960.00',
-      payment: 'Cash on Delivery',
-      items: [
-        {
-          name: 'Oversized Silk Scrunchie - Midnight Noir',
-          qty: 2,
-          price: 'Rs 340.00',
-          img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=150&auto=format&fit=crop&q=60'
-        },
-        {
-          name: 'The Juliette Silk-Velvet Tail Bow',
-          qty: 1,
-          price: 'Rs 380.00',
-          img: 'https://images.unsplash.com/photo-1576426863848-c21f53c60b19?w=150&auto=format&fit=crop&q=60'
-        }
-      ]
-    }
-  ]);
+      })
+      .catch(() => {});
+  }, []);
 
   // Saved Addresses
   const [addresses, setAddresses] = useState([
@@ -179,13 +166,15 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(updatedData)
       });
-      const data = await res.json();
-      if (data.success) {
-        setUserProfile(data.data);
-        localStorage.setItem('malmalee_user', JSON.stringify(data.data));
+      const d = await res.json();
+      // API returns { success: true, user: {...} }
+      const userData = d.user || d.data;
+      if (d.success && userData) {
+        setUserProfile(userData);
+        localStorage.setItem('malmalee_user', JSON.stringify(userData));
         triggerToast('Personal profile updated successfully.');
       } else {
-        triggerToast(data.message || 'Update failed.');
+        triggerToast(d.message || 'Update failed.');
       }
     } catch {
       triggerToast('Cannot connect to server.');
@@ -438,8 +427,13 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                     Bespoke Orders &amp; History
                   </h2>
                   <span className="text-xs text-gray-500">
-                    Showing {orders.length} recent creations
+                    {orders.length} order{orders.length !== 1 ? 's' : ''}
                   </span>
+                  <button
+                    onClick={() => navigate('/my-orders')}
+                    className="text-xs font-semibold text-primaryPurple hover:text-darkPurple underline transition">
+                    View All →
+                  </button>
                 </div>
 
                 {orders.map((order) => (
@@ -503,12 +497,12 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
 
                     {/* Order Items List */}
                     <div className="pt-4 space-y-3">
-                      {order.items.map((item, idx) => (
+                      {(order.items || []).map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <img 
-                              src={item.img} 
-                              alt={item.name} 
+                              src={item.img || 'https://via.placeholder.com/48x48?text=✦'} 
+                              alt={item.name || 'Product'} 
                               className="w-12 h-12 rounded-lg object-cover border border-gray-100 shadow-xs"
                             />
                             <div>
@@ -775,7 +769,7 @@ const CustomerProfile = ({ onLogout = () => {} }) => {
                         </div>
                         <div className="p-4">
                           <p className="text-[10px] text-primaryPurple font-bold tracking-widest uppercase mb-1">
-                            {item.category}
+                           {item?.category}
                           </p>
                           <h3 className="text-xs font-semibold text-gray-800 line-clamp-2 h-8">
                             {item.title}
