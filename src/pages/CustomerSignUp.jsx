@@ -1,49 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiCheck, FiShield } from 'react-icons/fi';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff, FiCheck, FiShield } from "react-icons/fi";
+
+const API_BASE = "http://localhost:5000";
 
 const CustomerSignUp = ({ onLogin = () => {} }) => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Password validation: at least 8 chars, at least one letter and one number
-  const isPasswordValid = password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
+  const isPasswordValid =
+    password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
+    setErrorMsg("");
+    setSuccessMsg("");
 
     if (!fullName.trim() || !email.trim() || !password) {
-      setErrorMsg('Please fill in all fields.');
+      setErrorMsg("Please fill in all fields.");
       return;
     }
 
     if (password.length < 8) {
-      setErrorMsg('Password must be at least 8 characters long.');
+      setErrorMsg("Password must be at least 8 characters long.");
       return;
     }
 
     if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
-      setErrorMsg('Password must contain both letters and numbers.');
+      setErrorMsg("Password must contain both letters and numbers.");
       return;
     }
 
     setIsLoading(true);
-    // Simulate sign up registration
-    setTimeout(() => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, password, phone }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("malmalee_token", data.token);
+        localStorage.setItem("malmalee_user", JSON.stringify(data.user));
+        setSuccessMsg("Account created successfully! Welcome to Malmalee Creations.");
+        if (onLogin) onLogin();
+        setTimeout(() => {
+          navigate("/home");
+        }, 1200);
+      } else {
+        setErrorMsg(data.message || "Sign up failed. Please try again.");
+      }
+    } catch (err) {
+      setErrorMsg("Network error. Please check your connection and try again.");
+    } finally {
       setIsLoading(false);
-      setSuccessMsg('Account created successfully! Welcome to Malmalee Creations.');
-      if (onLogin) onLogin();
-      setTimeout(() => {
-        navigate('/home');
-      }, 1200);
-    }, 800);
+    }
   };
 
   return (
@@ -58,8 +78,8 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
           className="w-full h-full"
           style={{
             backgroundImage: `radial-gradient(#3d005b 0.5px, transparent 0.5px)`,
-            backgroundSize: '32px 32px',
-            opacity: 0.04
+            backgroundSize: "32px 32px",
+            opacity: 0.04,
           }}
         />
       </div>
@@ -67,7 +87,7 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
       {/* Top Header: Logo with ONLY letters in Purple on Top-Left */}
       <header className="relative z-10 w-full px-8 sm:px-12 pt-8 pb-4 flex items-center">
         <div
-          onClick={() => navigate('/home')}
+          onClick={() => navigate("/home")}
           className="cursor-pointer group inline-block"
         >
           <span className="font-playfair text-2xl sm:text-3xl font-semibold tracking-wide text-darkPurple transition-colors duration-200">
@@ -137,6 +157,20 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
               />
             </div>
 
+            {/* Phone */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Phone <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="e.g. +94 77 123 4567"
+                className="w-full px-3.5 py-2.5 text-sm bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple transition duration-200"
+              />
+            </div>
+
             {/* Password */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -144,7 +178,7 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
@@ -156,7 +190,7 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <FiEyeOff className="w-4 h-4" />
@@ -168,8 +202,16 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
 
               {/* Password Requirement Hint */}
               <div className="flex items-center space-x-1.5 mt-2">
-                <FiShield className={`w-3.5 h-3.5 flex-shrink-0 ${isPasswordValid ? 'text-green-600' : 'text-primaryPurple'}`} />
-                <p className={`text-[11px] leading-tight ${isPasswordValid ? 'text-green-700 font-medium' : 'text-primaryPurple'}`}>
+                <FiShield
+                  className={`w-3.5 h-3.5 flex-shrink-0 ${
+                    isPasswordValid ? "text-green-600" : "text-primaryPurple"
+                  }`}
+                />
+                <p
+                  className={`text-[11px] leading-tight ${
+                    isPasswordValid ? "text-green-700 font-medium" : "text-primaryPurple"
+                  }`}
+                >
                   Must be at least 8 characters with letters and numbers.
                 </p>
               </div>
@@ -183,7 +225,10 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
                 className="w-full bg-primaryPurple hover:bg-darkPurple active:scale-[0.99] text-white font-medium text-sm py-2.5 sm:py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-75 cursor-pointer"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating account...</span>
+                  </>
                 ) : (
                   <span>Register</span>
                 )}
@@ -202,10 +247,10 @@ const CustomerSignUp = ({ onLogin = () => {} }) => {
           {/* Bottom Switch to Login Link */}
           <div className="text-center text-xs sm:text-sm text-gray-600">
             <p>
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="text-primaryPurple font-semibold hover:text-darkPurple hover:underline ml-1 cursor-pointer transition"
               >
                 Login here
