@@ -59,8 +59,15 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
     await Category.collection.updateOne({ _id: id }, { $set: { productCount: cnt } });
   }
 
+  // Create admin user
+  const Admin = require('./src/models/Admin');
+  await Admin.deleteMany({});
+  await Admin.create({ name: 'Malmalee Admin', email: 'admin@malmalee.com', password: 'admin123', role: 'superadmin' });
+  console.log('Admin user created: admin@malmalee.com / admin123');
+
   console.log('\n✅ Database seeded successfully!');
   console.log('  - 5 categories');
   console.log('  - 10 products');
+  console.log('  - 1 admin user');
   mongoose.disconnect();
 }).catch(err => { console.error('Failed:', err.message); process.exit(1); });
