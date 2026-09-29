@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header = ({ isLoggedIn, onLogout }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Live cart count from localStorage
+  const getCartCount = () => {
+    try {
+      const cart = JSON.parse(localStorage.getItem('malmalee_cart') || '[]');
+      return cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    } catch { return 0; }
+  };
+  const [cartCount, setCartCount] = useState(getCartCount);
+
+  useEffect(() => {
+    // Update count whenever localStorage changes (from other tabs or same page)
+    const handleStorage = () => setCartCount(getCartCount());
+    window.addEventListener('storage', handleStorage);
+    // Also poll every second to catch same-tab updates
+    const interval = setInterval(() => setCartCount(getCartCount()), 500);
+    return () => { window.removeEventListener('storage', handleStorage); clearInterval(interval); };
+  }, []);
 
   const navLinks = [
     { label: 'Home', path: '/home' },
@@ -70,9 +88,11 @@ const Header = ({ isLoggedIn, onLogout }) => {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            <span className="absolute -top-2 -right-2 bg-white text-[#c81e67] text-[10px] font-bold w-[18px] h-[18px] flex items-center justify-center rounded-full">
-              3
-            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-white text-[#c81e67] text-[10px] font-bold w-[18px] h-[18px] flex items-center justify-center rounded-full">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
           </Link>
         </div>
 

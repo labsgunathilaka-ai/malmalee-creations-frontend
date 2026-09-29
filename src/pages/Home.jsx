@@ -1,28 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import heroMain from '../assets/hero-main.jpg';
 import heroCollection from '../assets/hero-collection.jpg';
-import product1 from '../assets/product-1.jpg';
-import product2 from '../assets/product-2.jpg';
-import product3 from '../assets/product-3.jpg';
-import product4 from '../assets/product-4.jpg';
-import product5 from '../assets/product-5.jpg';
-import product6 from '../assets/product-6.jpg';
-import product7 from '../assets/product-7.jpg';
-import product8 from '../assets/product-8.jpg';
+
+const API_BASE = 'http://localhost:5000';
 
 const Home = () => {
   const navigate = useNavigate();
-  const products = [
-    { id: 1, tag: 'BESTSELLER', category: 'SILK SCRUNCHIES', title: 'Pure Mulberry Silk Cloud Scrunchie - Rose Quartz', price: 'Rs 280.00', img: product1 },
-    { id: 2, tag: 'LIMITED RUN', category: 'OVERSIZED EDITIONS', title: 'Oversized Silk Scrunchie - Midnight Noir', price: 'Rs 340.00', img: product2 },
-    { id: 3, tag: 'NEW SEASON', category: 'VELVET HAIR BOWS', title: 'Velvet Ribbon Hair Bow - Bordeaux', price: 'Rs 420.00', img: product3 },
-    { id: 4, tag: 'BRIDAL ATELIER', category: 'EMBROIDERED BOWS', title: 'Pearl Embroidered French Bow - Ivory', price: 'Rs 580.00', img: product4 },
-    { id: 5, tag: '', category: 'HAIR BOWS', title: 'The Juliette Silk-Velvet Tail Bow', price: 'Rs 380.00', img: product5 },
-    { id: 6, tag: '', category: 'BESPOKE SETS', title: 'Petite Silk Trio Gift Vault', price: 'Rs 480.00', img: product6 },
-    { id: 7, tag: '', category: 'HAIR BOWS', title: 'The Versailles French Lace Ribbon', price: 'Rs 340.00', img: product7 },
-    { id: 8, tag: '', category: 'SCRUNCHIES', title: 'Emerald Botanical Silk Cloud', price: 'Rs 320.00', img: product8 },
-  ];
+
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE}/api/products/featured`).then(r => r.json()),
+      fetch(`${API_BASE}/api/products/new-arrivals`).then(r => r.json()),
+    ]).then(([featured, newArr]) => {
+      if (featured.success) setFeaturedProducts(featured.data);
+      if (newArr.success) setNewArrivals(newArr.data);
+      setLoadingProducts(false);
+    }).catch(() => setLoadingProducts(false));
+  }, []);
+
+  const getImageUrl = (images) => {
+    if (!images || images.length === 0) return null;
+    const img = images[0];
+    return img.startsWith('http') ? img : `${API_BASE}${img}`;
+  };
+
+  const addToCart = (product) => {
+    const cart = JSON.parse(localStorage.getItem('malmalee_cart') || '[]');
+    const existing = cart.find(i => i.productId === product._id);
+    if (existing) { existing.quantity += 1; }
+    else { cart.push({ productId: product._id, name: product.name, price: product.price, quantity: 1, image: getImageUrl(product.images), sku: product.sku }); }
+    localStorage.setItem('malmalee_cart', JSON.stringify(cart));
+  };
+
+  // Combine featured + newArrivals, deduplicate by _id, take up to 8
+  const displayProducts = [...featuredProducts, ...newArrivals].reduce((acc, p) => {
+    if (!acc.find(x => x._id === p._id)) acc.push(p);
+    return acc;
+  }, []).slice(0, 8);
 
   return (
     <div className="font-sans text-gray-800">
@@ -86,35 +105,60 @@ const Home = () => {
           <button onClick={() => navigate('/products')} className="bg-primaryPurple text-white px-4 py-1.5 rounded-full text-xs hover:bg-darkPurple transition">All Pieces</button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {products.map((product) => (
-            <div key={product.id} onClick={() => { navigate(`/products/${product.id}`); window.scrollTo({top:0,behavior:'smooth'}); }} className="group cursor-pointer">
-              <div className="relative bg-white rounded-md overflow-hidden aspect-square mb-4 shadow-sm border border-gray-50">
-                {product.tag && (
-                  <span className="absolute top-3 left-3 bg-white text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-700 tracking-wider">
-                    {product.tag}
-                  </span>
-                )}
-                <button className="absolute top-3 right-3 text-gray-400 hover:text-primaryPurple">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                </button>
-                <img src={product.img} alt={product.title} className="w-full h-full object-cover mix-blend-multiply" />
+        {loadingProducts ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 rounded-md aspect-square mb-4" />
+                <div className="h-3 bg-gray-200 rounded w-1/2 mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-3" />
+                <div className="h-4 bg-gray-200 rounded w-1/3" />
               </div>
-              <p className="text-[10px] text-primaryPurple font-bold tracking-widest uppercase mb-1">{product.category}</p>
-              <h3 className="text-sm font-medium text-gray-800 mb-3 h-10 leading-snug">{product.title}</h3>
-              <div className="flex justify-between items-center mt-auto">
-                <div>
-                  <p className="text-[10px] text-gray-500 uppercase">Price</p>
-                  <p className="text-sm font-bold text-gray-800">{product.price}</p>
+            ))}
+          </div>
+        ) : displayProducts.length === 0 ? (
+          <p className="text-center text-gray-500 py-16">No products found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {displayProducts.map((product) => (
+              <div key={product._id} onClick={() => { navigate(`/products/${product._id}`); window.scrollTo({top:0,behavior:'smooth'}); }} className="group cursor-pointer">
+                <div className="relative bg-white rounded-md overflow-hidden aspect-square mb-4 shadow-sm border border-gray-50">
+                  {product.tag && (
+                    <span className="absolute top-3 left-3 bg-white text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-700 tracking-wider">
+                      {product.tag}
+                    </span>
+                  )}
+                  <button
+                    className="absolute top-3 right-3 text-gray-400 hover:text-primaryPurple"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  </button>
+                  {getImageUrl(product.images) ? (
+                    <img src={getImageUrl(product.images)} alt={product.name} className="w-full h-full object-cover mix-blend-multiply" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                  )}
                 </div>
-                <button onClick={(e) => e.stopPropagation()} className="bg-primaryPurple text-white px-3 py-1.5 rounded text-xs hover:bg-darkPurple transition flex items-center space-x-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                  <span>Add to Cart</span>
-                </button>
+                <p className="text-[10px] text-primaryPurple font-bold tracking-widest uppercase mb-1">{product.category?.name || ''}</p>
+                <h3 className="text-sm font-medium text-gray-800 mb-3 h-10 leading-snug">{product.name}</h3>
+                <div className="flex justify-between items-center mt-auto">
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase">Price</p>
+                    <p className="text-sm font-bold text-gray-800">Rs {product.price}.00</p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+                    className="bg-primaryPurple text-white px-3 py-1.5 rounded text-xs hover:bg-darkPurple transition flex items-center space-x-1"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    <span>Add to Cart</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 4. Testimonials */}
@@ -134,7 +178,7 @@ const Home = () => {
                   ))}
                 </div>
                 <p className="text-xs text-gray-600 mb-4 leading-relaxed italic">
-                  "The pure mulberry cloud scrunchie in Rose Quartz has replaced every single hair tie I own..."
+                  &quot;The pure mulberry cloud scrunchie in Rose Quartz has replaced every single hair tie I own...&quot;
                 </p>
                 <div>
                   <p className="font-bold text-darkPurple text-sm">Pushpa</p>

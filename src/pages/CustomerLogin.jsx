@@ -1,39 +1,59 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiLock, FiEye, FiEyeOff, FiCheck, FiUser, FiShield } from 'react-icons/fi';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiLock, FiEye, FiEyeOff, FiCheck, FiUser, FiShield } from "react-icons/fi";
+
+const API_BASE = "http://localhost:5000";
 
 const CustomerLogin = ({ onLogin = () => {} }) => {
   const navigate = useNavigate();
-  const [role, setRole] = useState('customer'); // 'customer' | 'admin'
+  const [role, setRole] = useState("customer"); // "customer" | "admin"
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+
     if (!email || !password) {
-      alert('Please fill in all required fields.');
+      setErrorMsg("Please fill in all required fields.");
       return;
     }
 
     setIsLoading(true);
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
-      setSuccessMsg(`Welcome back! You are now logged in as ${role === 'admin' ? 'Admin' : 'Customer'}.`);
-      
-      if (onLogin) onLogin(role);
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-      setTimeout(() => {
-        setSuccessMsg('');
-        if (true) {
-          navigate(role === 'admin' ? '/admin' : '/home');
-        }
-      }, 1200);
-    }, 800);
+      if (data.success) {
+        localStorage.setItem("malmalee_token", data.token);
+        localStorage.setItem("malmalee_user", JSON.stringify(data.user));
+        setSuccessMsg(
+          `Welcome back! You are now logged in as ${
+            role === "admin" ? "Admin" : "Customer"
+          }.`
+        );
+        if (onLogin) onLogin(role);
+        setTimeout(() => {
+          navigate(role === "admin" ? "/admin" : "/home");
+        }, 1200);
+      } else {
+        setErrorMsg(data.message || "Login failed. Please try again.");
+      }
+    } catch (err) {
+      setErrorMsg("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,25 +64,24 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#c81e67]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#c81e67]/5 rounded-full blur-3xl"></div>
         {/* Subtle grid pattern */}
-        <div 
+        <div
           className="w-full h-full"
           style={{
             backgroundImage: `radial-gradient(#c81e67 0.5px, transparent 0.5px)`,
-            backgroundSize: '32px 32px',
-            opacity: 0.05
+            backgroundSize: "32px 32px",
+            opacity: 0.05,
           }}
         />
       </div>
 
-      {/* Top Header Navigation Bar - Screenshot එකේ වගේ Magenta Header එක */}
+      {/* Top Header Navigation Bar */}
       <header className="relative z-10 w-full bg-[#c81e67] text-white px-8 sm:px-12 py-4 shadow-sm flex items-center justify-between">
-        <div 
-          onClick={() => navigate('/home')}
+        <div
+          onClick={() => navigate("/home")}
           className="cursor-pointer font-playfair text-2xl sm:text-3xl font-bold tracking-wide"
         >
           Malmalee Creations
         </div>
-
       </header>
 
       {/* Main Login Card Section */}
@@ -71,18 +90,18 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
           
           {/* Animated Role Switcher Toggle */}
           <div className="relative bg-[#fbf7f2] p-1.5 rounded-xl flex items-center mb-6 border border-[#e8ded1]">
-            {/* Sliding Background Accent - Magenta / Deep Pink */}
-            <div 
+            {/* Sliding Background Accent */}
+            <div
               className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-[#c81e67] rounded-lg transition-all duration-300 ease-in-out shadow-sm ${
-                role === 'admin' ? 'translate-x-[calc(100%+6px)]' : 'translate-x-0'
+                role === "admin" ? "translate-x-[calc(100%+6px)]" : "translate-x-0"
               }`}
             />
             
             <button
               type="button"
-              onClick={() => setRole('customer')}
+              onClick={() => setRole("customer")}
               className={`relative z-10 w-1/2 py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors duration-200 cursor-pointer ${
-                role === 'customer' ? 'text-white' : 'text-gray-600 hover:text-[#c81e67]'
+                role === "customer" ? "text-white" : "text-gray-600 hover:text-[#c81e67]"
               }`}
             >
               <FiUser className="w-3.5 h-3.5" />
@@ -91,9 +110,9 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
 
             <button
               type="button"
-              onClick={() => setRole('admin')}
+              onClick={() => setRole("admin")}
               className={`relative z-10 w-1/2 py-2 text-xs font-semibold uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-colors duration-200 cursor-pointer ${
-                role === 'admin' ? 'text-white' : 'text-gray-600 hover:text-[#c81e67]'
+                role === "admin" ? "text-white" : "text-gray-600 hover:text-[#c81e67]"
               }`}
             >
               <FiShield className="w-3.5 h-3.5" />
@@ -111,12 +130,12 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
           {/* Heading */}
           <div className="text-center mb-6">
             <h1 className="font-playfair text-3xl font-bold text-[#c81e67] tracking-tight">
-              {role === 'admin' ? 'Admin Access' : 'Login'}
+              {role === "admin" ? "Admin Access" : "Login"}
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 font-normal leading-relaxed mt-1.5 max-w-xs mx-auto">
-              {role === 'admin' 
-                ? 'Sign in to manage orders, inventory, and atelier settings.' 
-                : 'Sign in to access your bespoke orders and saved atelier items.'}
+              {role === "admin"
+                ? "Sign in to manage orders, inventory, and atelier settings."
+                : "Sign in to access your bespoke orders and saved atelier items."}
             </p>
           </div>
 
@@ -125,6 +144,13 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
             <div className="mb-5 bg-green-50 border border-green-200 text-green-800 text-xs px-3.5 py-2.5 rounded-lg flex items-center space-x-2 animate-fadeIn">
               <FiCheck className="text-green-600 w-4 h-4 flex-shrink-0" />
               <span>{successMsg}</span>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {errorMsg && (
+            <div className="mb-5 bg-red-50 border border-red-200 text-red-700 text-xs px-3.5 py-2.5 rounded-lg flex items-center space-x-2 animate-fadeIn">
+              <span>{errorMsg}</span>
             </div>
           )}
 
@@ -140,7 +166,7 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={role === 'admin' ? 'e.g. admin@malmalee.com' : 'e.g. eleanor@atelier.com'}
+                placeholder={role === "admin" ? "e.g. admin@malmalee.com" : "e.g. eleanor@atelier.com"}
                 className="w-full px-3.5 py-2.5 text-sm bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#c81e67] focus:ring-1 focus:ring-[#c81e67] transition duration-200"
                 required
               />
@@ -152,10 +178,10 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
                 <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Password
                 </label>
-                {role === 'customer' && (
+                {role === "customer" && (
                   <button
                     type="button"
-                    onClick={() => navigate('/forgot-password')}
+                    onClick={() => navigate("/forgot-password")}
                     className="text-xs font-medium text-[#c81e67] hover:underline cursor-pointer transition"
                   >
                     Forgot Password?
@@ -164,7 +190,7 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
               </div>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
@@ -176,7 +202,7 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <FiEyeOff className="w-4 h-4" />
@@ -196,8 +222,8 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 text-[#c81e67] accent-[#c81e67] border-gray-300 rounded focus:ring-[#c81e67] cursor-pointer"
               />
-              <label 
-                htmlFor="rememberMe" 
+              <label
+                htmlFor="rememberMe"
                 className="ml-2 text-xs text-gray-600 font-normal cursor-pointer select-none"
               >
                 Keep me signed in on this device
@@ -212,16 +238,19 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
                 className="w-full bg-[#c81e67] hover:bg-[#a61352] active:scale-[0.99] text-white font-medium text-sm py-2.5 sm:py-3 rounded-lg shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-75 cursor-pointer"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </>
                 ) : (
-                  <span>{role === 'admin' ? 'Sign In to Dashboard' : 'Sign In'}</span>
+                  <span>{role === "admin" ? "Sign In to Dashboard" : "Sign In"}</span>
                 )}
               </button>
             </div>
           </form>
 
           {/* Register Link (Only for Customer) */}
-          {role === 'customer' && (
+          {role === "customer" && (
             <>
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
@@ -231,10 +260,10 @@ const CustomerLogin = ({ onLogin = () => {} }) => {
 
               <div className="text-center text-xs sm:text-sm text-gray-600">
                 <p>
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <button
                     type="button"
-                    onClick={() => navigate('/signup')}
+                    onClick={() => navigate("/signup")}
                     className="text-[#c81e67] font-semibold hover:underline ml-1 cursor-pointer transition"
                   >
                     Register here
