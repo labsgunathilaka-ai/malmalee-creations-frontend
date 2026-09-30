@@ -97,6 +97,33 @@ const Products = () => {
   };
 
   const handleAddToCart = (id) => {
+    const product = products.find(p => p._id === id);
+    if (!product) return;
+
+    // Save to localStorage cart
+    try {
+      const cart = JSON.parse(localStorage.getItem('malmalee_cart') || '[]');
+      const existing = cart.find(i => i.productId === id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        const imgUrl = product.images?.[0];
+        const finalImg = imgUrl
+          ? (imgUrl.startsWith('http') ? imgUrl : `http://localhost:5000${imgUrl}`)
+          : '';
+        cart.push({
+          productId: id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          image: finalImg,
+          sku: product.sku || '',
+        });
+      }
+      localStorage.setItem('malmalee_cart', JSON.stringify(cart));
+    } catch (e) { /* ignore */ }
+
+    // Show "Added!" animation briefly
     setAddedToCart(prev => [...prev, id]);
     setTimeout(() => setAddedToCart(prev => prev.filter(i => i !== id)), 1500);
   };
